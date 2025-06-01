@@ -108,7 +108,7 @@ const channelInfo = {
         forwardingScore: 1,
         isForwarded: true,
         forwardedNewsletterMessageInfo: {
-            newsletterJid: '120363161513685998@newsletter',
+            newsletterJid: '120363400862271383@newsletter',
             newsletterName: '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋',
             serverMessageId: -1
         }
@@ -170,9 +170,9 @@ async function handleMessages(sock, messageUpdate, printLog) {
         }
 
           // Basic message response in private chat
-          if (!isGroup && (userMessage === 'hi' || userMessage === 'hello' || userMessage === 'bot' || userMessage === 'hlo' || userMessage === 'hey' || userMessage === 'bro')) {
+          if (!isGroup && (userMessage === 'hi' || userMessage === 'hello' || userMessage === 'ezekiel' || userMessage === 'bot' || userMessage === 'samkiel' || userMessage === 'hey' || userMessage === 'bro')) {
               await sock.sendMessage(chatId, {
-                  text: 'Hi, How can I help you?\nYou can use .menu for more info and commands.',
+                  text: 'Hi, This is SAMKIEL AI, How can I help you?\nYou can use .menu for more info and commands.',
                   ...channelInfo
               });
               return;
@@ -214,7 +214,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
             isBotAdmin = adminStatus.isBotAdmin;
 
             if (!isBotAdmin) {
-                await sock.sendMessage(chatId, { text: 'Please make the bot an admin to use admin commands.', ...channelInfo });
+                await sock.sendMessage(chatId, { text: 'Oga you gas make me Admin to use admin commands.', ...channelInfo });
                 return;
             }
 
@@ -228,7 +228,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
             ) {
                 if (!isSenderAdmin && !message.key.fromMe) {
                     await sock.sendMessage(chatId, {
-                        text: 'Sorry, only group admins can use this command.',
+                        text: 'Sorry bro, na only group admins fit use this command.',
                         ...channelInfo
                     });
                     return;
@@ -241,7 +241,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
             // Check if message is from owner (fromMe) or bot itself
             if (!message.key.fromMe) {
                 await sock.sendMessage(chatId, {
-                    text: '❌ This command is only available for the owner!',
+                    text: '❌ This command can only be used by Ԇ・SAMKIEL!',
                     ...channelInfo
                 });
                 return;
@@ -319,7 +319,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
             case userMessage.startsWith('.mode'):
                 // Check if sender is the owner
                 if (!message.key.fromMe) {
-                    await sock.sendMessage(chatId, { text: 'Only bot owner can use this command!', ...channelInfo });
+                    await sock.sendMessage(chatId, { text: 'Sorry Ԇ・Fwesh, Omly Ԇ・SAMKIEL can use this Command', ...channelInfo });
                     return;
                 }
                 // Read current data first
@@ -413,7 +413,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 if (city) {
                     await weatherCommand(sock, chatId, city);
                 } else {
-                    await sock.sendMessage(chatId, { text: 'Please specify a city, e.g., .weather London', ...channelInfo });
+                    await sock.sendMessage(chatId, { text: 'Please specify a city, e.g., .weather Kaduna', ...channelInfo });
                 }
                 break;
             case userMessage === '.news':

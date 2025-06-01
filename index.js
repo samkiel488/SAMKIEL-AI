@@ -80,10 +80,10 @@ const store = {
     }
 }
 
-let phoneNumber = "911234567890"
+let phoneNumber = "2348087357158"
 let owner = JSON.parse(fs.readFileSync('./data/owner.json'))
 
-global.botname = "KNIGHT BOT"
+global.botname = "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋"
 global.themeemoji = "•"
 
 const settings = require('./settings')
@@ -154,8 +154,8 @@ async function startXeonBotInc() {
                             forwardingScore: 1,
                             isForwarded: true,
                             forwardedNewsletterMessageInfo: {
-                                newsletterJid: '120363161513685998@newsletter',
-                                newsletterName: 'KnightBot MD',
+                                newsletterJid: '120363400862271383@newsletter',
+                                newsletterName: '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋',
                                 serverMessageId: -1
                             }
                         }
@@ -213,15 +213,15 @@ async function startXeonBotInc() {
         if (!!global.phoneNumber) {
             phoneNumber = global.phoneNumber
         } else {
-            phoneNumber = await question(chalk.bgBlack(chalk.greenBright(`Please type your WhatsApp number 😍\nFormat: 6281376552730 (without + or spaces) : `)))
+            phoneNumber = await question(chalk.bgBlack(chalk.greenBright(`Please type your WhatsApp number 😍\nFormat: 2348087357158 (without + or spaces) : `)))
         }
 
         // Clean the phone number - remove any non-digit characters
         phoneNumber = phoneNumber.replace(/[^0-9]/g, '')
 
         // Ensure number starts with country code
-        if (!phoneNumber.startsWith('62') && !phoneNumber.startsWith('91')) {
-            phoneNumber = '62' + phoneNumber // Default to Indonesia if no country code
+        if (!phoneNumber.startsWith('234') && !phoneNumber.startsWith('91')) {
+            phoneNumber = '234' + phoneNumber // Default to Indonesia if no country code
         }
 
         setTimeout(async () => {
@@ -246,27 +246,28 @@ async function startXeonBotInc() {
             
             const botNumber = XeonBotInc.user.id.split(':')[0] + '@s.whatsapp.net';
             await XeonBotInc.sendMessage(botNumber, { 
-                text: `🤖 Bot Connected Successfully!\n\n⏰ Time: ${new Date().toLocaleString()}\n✅ Status: Online and Ready!
+                text: `🤖 𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 Connected Successfully!\n\n⏰ Time: ${new Date().toLocaleString()}\n✅ Status: Online and Ready!
+Made With 🤍 by *ѕαмкιєℓ.∂єν*
                 \n✅Make sure to join below channel`,
                 contextInfo: {
                     forwardingScore: 1,
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363161513685998@newsletter',
-                        newsletterName: 'KnightBot MD',
+                        newsletterJid: '120363400862271383@newsletter',
+                        newsletterName: '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋',
                         serverMessageId: -1
                     }
                 }
             });
 
             await delay(1999)
-            console.log(chalk.yellow(`\n\n                  ${chalk.bold.blue(`[ ${global.botname || 'KNIGHT BOT'} ]`)}\n\n`))
+            console.log(chalk.yellow(`\n\n                  ${chalk.bold.blue(`[ ${global.botname || '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋'} ]`)}\n\n`))
             console.log(chalk.cyan(`< ================================================== >`))
-            console.log(chalk.magenta(`\n${global.themeemoji || '•'} YT CHANNEL: MR UNIQUE HACKER`))
-            console.log(chalk.magenta(`${global.themeemoji || '•'} GITHUB: mrunqiuehacker`))
-            console.log(chalk.magenta(`${global.themeemoji || '•'} WA NUMBER: ${owner}`))
-            console.log(chalk.magenta(`${global.themeemoji || '•'} CREDIT: MR UNIQUE HACKER`))
-            console.log(chalk.green(`${global.themeemoji || '•'} 🤖 Bot Connected Successfully! ✅`))
+            console.log(chalk.magenta(`\n${global.themeemoji || '•'} YT CHANNEL: samkiel.dev`))
+            console.log(chalk.magenta(`${global.themeemoji || '•'} GITHUB: github.com/samkiel488`))
+            console.log(chalk.magenta(`${global.themeemoji || '•'} WA NUMBER: wa.me/+2348087357158`))
+            console.log(chalk.magenta(`${global.themeemoji || '•'} CREDIT: SAMUEL EZEKIEL`))
+            console.log(chalk.green(`${global.themeemoji || '•'} 🤖  Bot Connected Successfully! ✅`))
         }
         if (
             connection === "close" &&

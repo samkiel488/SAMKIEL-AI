@@ -84,5 +84,5 @@ Scan the QR code via WhatsApp Linked Devices.
 - **Warning**: Unofficial bot. Use responsibly to avoid WhatsApp bans.  
 - **Credits**:  
   - [Baileys](https://github.com/adiwajshing/Baileys)  
-  - [SAMKIEL]([https://github.com/samkiel488])  
+  - [SAMKIEL](https://github.com/samkiel488)  
 

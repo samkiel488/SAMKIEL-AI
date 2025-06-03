@@ -40,7 +40,7 @@ Deploy to generate `creds.json` for WhatsApp linking:
 
 ### Step 3: Deploy  
 <div align="center">  
-  <a href="[YOUR_TUTORIAL_LINK]">  
+  <a href="https://comingsoon-v8h6.onrender.com/">  
     <img src="https://img.shields.io/badge/Deploy_Tutorial-dc3545?style=for-the-badge&logo=youtube" alt="YouTube Tutorial"/>  
   </a>  
   <a href="https://dashboard.katabump.com/auth/login#b55393">  
@@ -50,11 +50,11 @@ Deploy to generate `creds.json` for WhatsApp linking:
 
 ### Join Support Groups  
 <div align="center">  
-  <a href="[YOUR_TELEGRAM_LINK]">  
+  <a href="t.me/samkiel488">  
     <img src="https://img.shields.io/badge/Join_Telegram-0078E7?style=for-the-badge&logo=telegram" alt="Telegram"/>  
   </a>  
-  <a href="[YOUR_WHATSAPP_CHANNEL_LINK]">  
-    <img src="https://img.shields.io/badge/Join_WhatsApp-25D366?style=for-the-badge&logo=whatsapp" alt="WhatsApp Channel"/>  
+  <a href="https://whatsapp.com/channel/0029VbAhWo3C6Zvf2t4Rne0h">  
+    <img src="https://img.shields.io/badge/Join_WhatsApp-25D366?style=for-the-badge&logo=whatsapp" alt=" 𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 WhatsApp Channel"/>  
   </a>  
 </div>  
 
@@ -70,8 +70,8 @@ Deploy to generate `creds.json` for WhatsApp linking:
 
 ## 📖 Setup  
 ```bash  
-git clone [YOUR_GITHUB_REPO_LINK]  
-cd SAMKIEL-BOT  
+git clone https://github.com/samkiel488/SAMKIEL-AI/ 
+cd SAMKIEL-AI  
 npm install  
 node index.js  
 ```  
@@ -84,5 +84,5 @@ Scan the QR code via WhatsApp Linked Devices.
 - **Warning**: Unofficial bot. Use responsibly to avoid WhatsApp bans.  
 - **Credits**:  
   - [Baileys](https://github.com/adiwajshing/Baileys)  
-  - [Your_Name]([YOUR_GITHUB_PROFILE])  
+  - [SAMKIEL]([https://github.com/samkiel488])  
 

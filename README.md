@@ -5,11 +5,8 @@
 A multi-feature WhatsApp bot powered by Baileys, designed for group management, AI tools, and entertainment.  
 
 <div align="center"> 
-  <a href="https://git.io/typing-svg"> 
-    <img src="https://readme-typing-svg.demolab.com?font=Ribeye&size=50&pause=1000&color=33ff00&center=true&width=910&height=100&lines=𝕊𝔸𝕄𝕂𝕀𝔼𝕃+𝔹𝕆𝕋;AI+•+Utilities+•+Fun;Coded+By+SAMKIEL" alt="Typing SVG" /> 
-  </a> 
-</div>  
-
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=30&duration=3000&pause=1000&color=33FF00&center=true&width=800&height=50&lines=SAMKIEL+BOT;AI+%E2%80%A2+Utilities+%E2%80%A2+Fun;Coded+By+SAMKIEL" alt="Typing Animation" />
+</div>
 <div align="center"> 
   <a href=samkiel-dev.vercel.app""> 
     <img src="https://files.catbox.moe/t1ocas.jpg" alt="SAMKIEL BOT" height="300"> 
@@ -84,5 +81,5 @@ Scan the QR code via WhatsApp Linked Devices.
 - **Warning**: Unofficial bot. Use responsibly to avoid WhatsApp bans.  
 - **Credits**:  
   - [Baileys](https://github.com/adiwajshing/Baileys)  
-  - [SAMKIEL](https://github.com/samkiel488)  
+  - [SAMKIEL]([https://github.com/samkiel488)  
 

@@ -24,6 +24,7 @@ global.APIKeys = {
 };
 
 module.exports = {
+    prefix: '!', // 👈 You can change this to anything, like '.', '#', etc.
     WARN_COUNT: 3,
     APIs: global.APIs,
     APIKeys: global.APIKeys

@@ -19,6 +19,8 @@ const axios = require('axios')
 const { handleMessages, handleGroupParticipantUpdate, handleStatus } = require('./main');
 const PhoneNumber = require('awesome-phonenumber')
 const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/exif')
+const port = process.env.PORT || 4000 
+    
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetch, await, sleep, reSize } = require('./lib/myfunc')
 const config = require('./config');
 const { 
@@ -101,7 +103,9 @@ const question = (text) => {
         return Promise.resolve(settings.ownerNumber || phoneNumber)
     }
 }
-
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
          
 async function startXeonBotInc() {
     let { version, isLatest } = await fetchLatestBaileysVersion()

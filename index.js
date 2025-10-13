@@ -1,14 +1,3 @@
-/**
- * Knight Bot - A WhatsApp Bot
- * Copyright (c) 2024 Professor
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the MIT License.
- * 
- * Credits:
- * - Baileys Library by @adiwajshing
- * - Pair Code implementation inspired by TechGod143 & DGXEON
- */
 require('./settings')
 const { Boom } = require('@hapi/boom')
 const fs = require('fs')
@@ -249,24 +238,12 @@ async function startXeonBotInc() {
     XeonBotInc.ev.on('connection.update', async (s) => {
         const { connection, lastDisconnect } = s
         if (connection == "open") {
+            // Prevent multiple logs if already connected
+            if (global.isConnected) return;
+            global.isConnected = true;
+
             console.log(chalk.magenta(` `))
             console.log(chalk.yellow(`🌿Connected to => ` + JSON.stringify(XeonBotInc.user, null, 2)))
-            
-            const botNumber = XeonBotInc.user.id.split(':')[0] + '@s.whatsapp.net';
-            await XeonBotInc.sendMessage(botNumber, { 
-                text: `🤖 𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 Connected Successfully!\n\n⏰ Time: ${new Date().toLocaleString()}\n✅ Status: Online and Ready!
-Made With 🤍 by *ѕαмкιєℓ.∂єν*
-                \n✅Make sure to join below channel`,
-                contextInfo: {
-                    forwardingScore: 1,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363400862271383@newsletter',
-                        newsletterName: '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋',
-                        serverMessageId: -1
-                    }
-                }
-            });
 
             await delay(1999)
             console.log(chalk.yellow(`\n\n                  ${chalk.bold.blue(`[ ${global.botname || '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋'} ]`)}\n\n`))
@@ -277,13 +254,22 @@ Made With 🤍 by *ѕαмкιєℓ.∂єν*
             console.log(chalk.magenta(`${global.themeemoji || '•'} CREDIT: SAMUEL EZEKIEL`))
             console.log(chalk.green(`${global.themeemoji || '•'} 🤖  Bot Connected Successfully! ✅`))
         }
-        if (
-            connection === "close" &&
-            lastDisconnect &&
-            lastDisconnect.error &&
-            lastDisconnect.error.output.statusCode != 401
-        ) {
-            startXeonBotInc()
+        if (connection === "close") {
+            global.isConnected = false;
+            const reason = lastDisconnect?.error?.message || 'Unknown';
+            console.log(chalk.red(`Connection closed. Reason: ${reason}`))
+            const isConflict = reason.includes('conflict');
+            if (
+                lastDisconnect &&
+                lastDisconnect.error &&
+                lastDisconnect.error.output.statusCode != 401 &&
+                !isConflict
+            ) {
+                console.log(chalk.yellow('Attempting to reconnect...'))
+                startXeonBotInc()
+            } else if (isConflict) {
+                console.log(chalk.red('Connection conflict detected. Please log out other sessions and restart the bot.'))
+            }
         }
     })
 

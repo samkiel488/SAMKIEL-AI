@@ -94,6 +94,9 @@ const { goodnightCommand } = require('./commands/goodnight');
 const { shayariCommand } = require('./commands/shayari');
 const { rosedayCommand } = require('./commands/roseday');
 const imagineCommand = require('./commands/imagine');
+const { reminiCommand } = require('./commands/remini');
+const { setGroupDescription, setGroupName, setGroupPhoto } = require('./commands/groupmanage');
+const removebg = require('./commands/removebg');
 
 
 // Global settings
@@ -755,8 +758,27 @@ async function handleMessages(sock, messageUpdate, printLog) {
             case userMessage === '.roseday':
                 await rosedayCommand(sock, chatId);
                 break;
-            case userMessage.startsWith('.imagine') || userMessage.startWith('.gen') || userMessage.startsWith('.flux') || userMessage.startsWith('.dalle'):
+            case userMessage.startsWith('.imagine') || userMessage.startsWith('.gen') || userMessage.startsWith('.flux') || userMessage.startsWith('.dalle'):
                 await imagineCommand(sock, chatId, message);
+                break;
+            case userMessage.startsWith('.remini'):
+                const reminiArgs = userMessage.split(' ').slice(1);
+                await reminiCommand(sock, chatId, message, reminiArgs);
+                break;
+            case userMessage.startsWith('.setgdesc'):
+                const descText = userMessage.slice(9).trim();
+                await setGroupDescription(sock, chatId, senderId, descText, message);
+                break;
+            case userMessage.startsWith('.setgname'):
+                const nameText = userMessage.slice(9).trim();
+                await setGroupName(sock, chatId, senderId, nameText, message);
+                break;
+            case userMessage.startsWith('.setgpp'):
+                await setGroupPhoto(sock, chatId, senderId, message);
+                break;
+            case userMessage.startsWith('.removebg') || userMessage.startsWith('.rmbg') || userMessage.startsWith('.nobg'):
+                const removebgArgs = userMessage.split(' ').slice(1);
+                await removebg.exec(sock, message, removebgArgs);
                 break;
             default:
                 if (isGroup) {

@@ -28,12 +28,8 @@ async function imagineCommand(sock, chatId, message) {
         // Enhance the prompt with quality keywords
         const enhancedPrompt = enhancePrompt(imagePrompt);
 
-        // Make API request
-        const response = await axios.get(`https://api.shizo.top/ai/imagine/flux`, {
-            params: {
-                apikey: 'knightbot', // Consider moving to config
-                prompt: enhancedPrompt
-            },
+           // Make API request
+        const response = await axios.get(`https://shizoapi.onrender.com/api/ai/imagine?apikey=shizo&query=${encodeURIComponent(enhancedPrompt)}`, {
             responseType: 'arraybuffer'
         });
 

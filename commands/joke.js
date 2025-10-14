@@ -2,7 +2,7 @@ const axios = require('axios');
 
 module.exports = async function (sock, chatId) {
     try {
-        const response = await axios.get('https://icanhazdadjoke.com/', {
+        const response = await axios.get('https://v2.jokeapi.dev/joke/Any', {
             headers: { Accept: 'application/json' }
         });
         const joke = response.data.joke;

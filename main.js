@@ -97,6 +97,7 @@ const imagineCommand = require('./commands/imagine');
 const { reminiCommand } = require('./commands/remini');
 const { setGroupDescription, setGroupName, setGroupPhoto } = require('./commands/groupmanage');
 const removebg = require('./commands/removebg');
+const updateCommand = require('./commands/update');
 
 
 // Global settings
@@ -294,6 +295,9 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 break;
             case userMessage.startsWith('.unban'):
                 await unbanCommand(sock, chatId, message);
+                break;
+            case userMessage === '.update':
+                await updateCommand(sock, chatId, message);
                 break;
             case userMessage === '.help' || userMessage === '.menu' || userMessage === '.bot' || userMessage === '.list':
                 await helpCommand(sock, chatId, global.channelLink);

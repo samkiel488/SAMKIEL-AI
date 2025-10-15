@@ -24,6 +24,6 @@
  .vscode/
  *.suo
  *.ntvs*
- *.njsproj
+ *.njsproje
  *.sln
  *.sw?

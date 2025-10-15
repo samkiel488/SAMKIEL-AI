@@ -406,8 +406,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
             case userMessage === '.meme':
                 await memeCommand(sock, chatId);
                 break;
-            case userMessage === '.joke':
-                await jokeCommand(sock, chatId);
+            case userMessage.startsWith('.joke'):
+                await jokeCommand(sock, chatId, message);
                 break;
             case userMessage === '.quote':
                 await quoteCommand(sock, chatId);

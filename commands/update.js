@@ -32,7 +32,11 @@ async function updateViaGit() {
     const commits = alreadyUpToDate ? '' : await run(`git log --pretty=format:"%h %s (%an)" ${oldRev}..${newRev}`).catch(() => '');
     const files = alreadyUpToDate ? '' : await run(`git diff --name-status ${oldRev} ${newRev}`).catch(() => '');
     await run(`git reset --hard ${newRev}`);
-    await run('git clean -fd');
+    try {
+        await run('git clean -fd');
+    } catch (e) {
+        console.log('Warning: git clean failed, possibly due to locked files:', e.message);
+    }
     return { oldRev, newRev, alreadyUpToDate, commits, files };
 }
 

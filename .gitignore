@@ -6,8 +6,9 @@
  tmp/
  temp/
  
+ 
  # Session files
- session
+ session/
 
  # Environment variables
  .env

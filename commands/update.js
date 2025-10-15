@@ -53,7 +53,7 @@ function downloadFile(url, dest, visited = new Set()) {
             const client = useHttps ? require('https') : require('http');
             const req = client.get(url, {
                 headers: {
-                    'User-Agent': 'KnightBot-Updater/1.0',
+                    'User-Agent': '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋-Updater/1.0',
                     'Accept': '*/*'
                 }
             }, res => {

@@ -25,8 +25,8 @@ async function handleSsCommand(sock, chatId, message, match) {
             });
         }
 
-        // Call the API
-        const response = await fetch(`https://xploader-apis-5f424ea8f0da.herokuapp.com/screenshot?url=${encodeURIComponent(url)}&device=desktop`);
+        // Call the API (using screenshotlayer demo - has watermark but works)
+        const response = await fetch(`https://api.screenshotlayer.com/api/capture?access_key=demo&url=${encodeURIComponent(url)}&viewport=1440x900&format=PNG&quality=100`);
         
         if (!response.ok) {
             throw new Error(`API responded with status: ${response.status}`);

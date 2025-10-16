@@ -33,6 +33,18 @@ const { PHONENUMBER_MCC } = require('@whiskeysockets/baileys/lib/Utils/generics'
 const { rmSync, existsSync } = require('fs')
 const { join } = require('path')
 
+process.on("unhandledRejection", (err) => {
+  const message = String(err);
+  if (message.includes("conflict") || message.includes("Connection Closed")) {
+    console.log("⚠️ Connection conflict detected — restarting session...");
+    // Optional: add restart logic here (like reconnect or clean session)
+  } else {
+    console.error("Unhandled Rejection:", err);
+  }
+});
+
+
+
 let XeonBotInc; // Declare this at the top to make it accessible in store
 
 // Improved store implementation

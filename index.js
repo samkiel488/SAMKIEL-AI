@@ -273,7 +273,7 @@ async function startXeonBotInc() {
                     }
                 }
             });
-
+ 
             await delay(1999)
             console.log(chalk.yellow(`\n\n                  ${chalk.bold.blue(`[ ${global.botname || '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋'} ]`)}\n\n`))
             console.log(chalk.cyan(`< ================================================== >`))

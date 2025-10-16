@@ -2,6 +2,7 @@ const videoCommand = require("./commands/video");
 const settings = require("./settings");
 require("./config.js");
 const { isBanned } = require("./lib/isBanned");
+const isOwner = require("./lib/isOwner");
 const yts = require("yt-search");
 const { fetchBuffer } = require("./lib/myfunc");
 const fs = require("fs");
@@ -1086,7 +1087,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         break;
     }
 
-    if (userMessage.startsWith(",")) {
+    if (userMessage.startsWith(".")) {
       // After command is processed successfully
       await addCommandReaction(sock, message);
     }
@@ -1128,7 +1129,6 @@ async function handleGroupParticipantUpdate(sock, update) {
       await handleDemotionEvent(sock, id, participants, author);
       return;
     }
-
     // Handle join events
     if (action === "add") {
       // Check if welcome is enabled for this group

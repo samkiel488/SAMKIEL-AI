@@ -45,7 +45,7 @@ process.on("unhandledRejection", (err) => {
 
 
 
-let XeonBotInc; // Declare this at the top to make it accessible in store
+let XeonBotInc; 
 
 // Improved store implementation
 const store = {

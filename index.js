@@ -221,6 +221,8 @@ async function startXeonBotInc() {
         let phoneNumber
         if (!!global.phoneNumber) {
             phoneNumber = global.phoneNumber
+        } else if (settings.botNumber) {
+            phoneNumber = settings.botNumber
         } else {
             phoneNumber = await question(chalk.bgBlack(chalk.greenBright(`Please type your WhatsApp number 😍\nFormat: 2348087357158 (without + or spaces) : `)))
         }
@@ -230,7 +232,7 @@ async function startXeonBotInc() {
 
         // Ensure number starts with country code
         if (!phoneNumber.startsWith('234') && !phoneNumber.startsWith('91')) {
-            phoneNumber = '234' + phoneNumber // Default to Indonesia if no country code
+            phoneNumber = '234' + phoneNumber // Default to Nigeria if no country code
         }
 
         setTimeout(async () => {
@@ -256,6 +258,21 @@ async function startXeonBotInc() {
 
             console.log(chalk.magenta(` `))
             console.log(chalk.yellow(`🌿Connected to => ` + JSON.stringify(XeonBotInc.user, null, 2)))
+
+            // Send connected message to bot's own number
+            const botNumber = XeonBotInc.user.id.split(':')[0] + '@s.whatsapp.net';
+            await XeonBotInc.sendMessage(botNumber, {
+                text: `🤖 Bot Connected Successfully!\n\n⏰ Time: ${new Date().toLocaleString()}\n✅ Status: Online and Ready!\n\n📺 Make sure to join our channel for updates!`,
+                contextInfo: {
+                    forwardingScore: 1,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: '120363400862271383@newsletter',
+                        newsletterName: '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋',
+                        serverMessageId: -1
+                    }
+                }
+            });
 
             await delay(1999)
             console.log(chalk.yellow(`\n\n                  ${chalk.bold.blue(`[ ${global.botname || '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋'} ]`)}\n\n`))

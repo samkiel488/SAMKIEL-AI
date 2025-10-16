@@ -239,7 +239,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         // Check owner status for owner commands
         if (isOwnerCommand) {
             // Check if message is from owner (fromMe) or bot itself
-            if (!message.key.fromMe) {
+            if (!message.key.fromMe && !isOwner(senderId))) {
                 await sock.sendMessage(chatId, {
                     text: '❌ This command is only available for the owner!',
                     ...channelInfo

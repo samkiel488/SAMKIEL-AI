@@ -153,6 +153,7 @@ const channelInfo = {
     },
   },
 };
+const ownerList = JSON.parse(fs.readFileSync('./data/owner.json'));
 
 async function handleMessages(sock, messageUpdate, printLog) {
   try {
@@ -307,6 +308,9 @@ async function handleMessages(sock, messageUpdate, printLog) {
     let isSenderAdmin = false;
     let isBotAdmin = false;
 
+    const senderNumber = senderId.split('@')[0];
+    const isOwner = message.key.fromMe || ownerList.includes(senderNumber);
+
     // Check admin status only for admin commands in groups
     if (isGroup && isAdminCommand) {
       const adminStatus = await isAdmin(sock, chatId, senderId);
@@ -321,34 +325,22 @@ async function handleMessages(sock, messageUpdate, printLog) {
         return;
       }
 
-      if (
-        userMessage.startsWith(".mute") ||
-        userMessage === ".unmute" ||
-        userMessage.startsWith(".ban") ||
-        userMessage.startsWith(".unban") ||
-        userMessage.startsWith(".promote") ||
-        userMessage.startsWith(".demote")
-      ) {
-        if (!isSenderAdmin && !message.key.fromMe) {
-          await sock.sendMessage(chatId, {
-            text: "Sorry bro, na only group admins fit use this command.",
-            ...channelInfo,
-          });
-          return;
-        }
-      }
-    }
-
-    // Check owner status for owner commands
-    if (isOwnerCommand) {
-      // Check if message is from owner (fromMe) or bot itself
-      if (!message.key.fromMe && !isOwner(senderId)) {
+      // allow owners to bypass admin restriction
+      if (!isSenderAdmin && !ownerList.includes(senderNumber) && !message.key.fromMe) {
         await sock.sendMessage(chatId, {
-          text: "❌ This command can only be used by Ԇ・SAMKIEL!",
-          ...channelInfo,
+          text: 'Sorry bro, na only group admins or owners fit use this command.',
+          ...channelInfo
         });
         return;
       }
+    }
+
+    if (isOwnerCommand && !isOwner) {
+      await sock.sendMessage(chatId, {
+        text: '❌ This command can only be used by bot owners!',
+        ...channelInfo
+      });
+      return;
     }
 
     // Add this near the start of your message handling logic, before processing commands
@@ -639,13 +631,6 @@ async function handleMessages(sock, messageUpdate, printLog) {
       case userMessage.startsWith(".lyrics"):
         const songTitle = userMessage.split(" ").slice(1).join(" ");
         await lyricsCommand(sock, chatId, songTitle, message);
-        break;
-      case userMessage.startsWith(".simp"):
-        const quotedMsg =
-          message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-        const mentionedJid =
-          message.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
-        await simpCommand(sock, chatId, quotedMsg, mentionedJid, senderId);
         break;
       case userMessage.startsWith(".stupid") ||
         userMessage.startsWith(".itssostupid") ||

@@ -3,6 +3,7 @@ const settings = require("./settings");
 require("./config.js");
 const { isBanned } = require("./lib/isBanned");
 const isOwner = require("./lib/isOwner");
+const { isSudo } = require("./lib/index");
 const yts = require("yt-search");
 const { fetchBuffer } = require("./lib/myfunc");
 const fs = require("fs");
@@ -175,6 +176,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
     const chatId = message.key.remoteJid;
     const senderId = message.key.participant || message.key.remoteJid;
     const isGroup = chatId.endsWith("@g.us");
+    const isSudoUser = await isSudo(senderId);
 
     let userMessage =
       message.message?.conversation?.trim().toLowerCase() ||
@@ -340,7 +342,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
     // Check owner status for owner commands
     if (isOwnerCommand) {
       // Check if message is from owner (fromMe) or bot itself
-      if (!message.key.fromMe) {
+      if (!message.key.fromMe && !isOwner(senderId)) {
         await sock.sendMessage(chatId, {
           text: "❌ This command can only be used by Ԇ・SAMKIEL!",
           ...channelInfo,
@@ -408,7 +410,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         await unbanCommand(sock, chatId, message);
         break;
       case userMessage === ".update":
-        await updateCommand(sock, chatId, message);
+        await updateCommand(sock, chatId, message, isSudoUser);
         break;
       case userMessage === ".help" ||
         userMessage === ".menu" ||

@@ -158,6 +158,7 @@ const ownerList = JSON.parse(fs.readFileSync('./data/owner.json'));
 const prefix = loadPrefix();
 
 async function handleMessages(sock, messageUpdate, printLog) {
+  let chatId;
   try {
     const { messages, type } = messageUpdate;
     if (type !== "notify") return;
@@ -176,7 +177,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
       return;
     }
 
-    const chatId = message.key.remoteJid;
+    chatId = message.key.remoteJid;
     const senderId = message.key.participant || message.key.remoteJid;
     const isGroup = chatId.endsWith("@g.us");
     const isSudoUser = await isSudo(senderId);
@@ -341,20 +342,25 @@ async function handleMessages(sock, messageUpdate, printLog) {
       }
     }
 
-    if (isOwnerCommand && !isOwner) {
-      await sock.sendMessage(chatId, {
-        text: '❌ This command can only be used by bot owners!',
+    if (isOwnerCommand) {
+      // Check if sender is owner or sudo
+      const isOwnerOrSudo = require("./lib/isOwner");
+      if (!(await isOwnerOrSudo(senderId))) {
+        await sock.sendMessage(chatId, {
+          text: '❌ This command is only available for the owner!',
           ...channelInfo
-      });
-      return;
+        });
+        return;
+      }
     }
 
     // Add this near the start of your message handling logic, before processing commands
     try {
       const data = JSON.parse(fs.readFileSync("./data/messageCount.json"));
-      // Allow owner to use bot even in private mode
-      if (!data.isPublic && !message.key.fromMe) {
-        return; // Silently ignore messages from non-owners when in private mode
+      // Allow owner or sudo to use bot even in private mode
+      const isOwnerOrSudo = require("./lib/isOwner");
+      if (!data.isPublic && !(await isOwnerOrSudo(senderId))) {
+        return; // Silently ignore messages from non-owners/sudo when in private mode
       }
     } catch (error) {
       console.error("Error checking access mode:", error);

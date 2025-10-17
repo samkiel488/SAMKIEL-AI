@@ -316,7 +316,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
     let isBotAdmin = false;
 
     const senderNumber = senderId.split('@')[0];
-    const isOwner = message.key.fromMe || ownerList.includes(senderNumber);
+    const isOwnerOrSudo = message.key.fromMe || await isOwner(senderId) || await isSudo(senderId);
 
     // Check admin status only for admin commands in groups
     if (isGroup && isAdminCommand) {
@@ -452,10 +452,10 @@ async function handleMessages(sock, messageUpdate, printLog) {
         await attpCommand(sock, chatId, message);
         break;
       case command.startsWith("mode"):
-        // Check if sender is the owner
-        if (!message.key.fromMe) {
+        // Check if sender is owner or sudo
+        if (!isOwnerOrSudo) {
           await sock.sendMessage(chatId, {
-            text: "Sorry Ԇ・Fwesh, Omly Ԇ・SAMKIEL can use this Command",
+            text: "❌ This command is only available for the owner!",
             ...channelInfo,
           });
           return;

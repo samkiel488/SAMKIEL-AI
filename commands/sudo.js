@@ -1,5 +1,6 @@
 const settings = require('../settings');
 const { addSudo, removeSudo, getSudoList } = require('../lib/index');
+const isOwner = require('../lib/isOwner');
 
 function extractMentionedJid(message) {
     const mentioned = message.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
@@ -12,8 +13,7 @@ function extractMentionedJid(message) {
 
 async function sudoCommand(sock, chatId, message) {
     const senderJid = message.key.participant || message.key.remoteJid;
-    const ownerJid = settings.ownerNumber + '@s.whatsapp.net';
-    const isOwner = message.key.fromMe || senderJid === ownerJid;
+    const isOwnerCheck = message.key.fromMe || await isOwner(senderJid);
 
     const rawText = message.message?.conversation || message.message?.extendedTextMessage?.text || '';
     const args = rawText.trim().split(' ').slice(1);
@@ -35,7 +35,7 @@ async function sudoCommand(sock, chatId, message) {
         return;
     }
 
-    if (!isOwner) {
+    if (!isOwnerCheck) {
         await sock.sendMessage(chatId, { text: '❌ Only owner can add/remove sudo users. Use .sudo list to view.' },{quoted :message});
         return;
     }

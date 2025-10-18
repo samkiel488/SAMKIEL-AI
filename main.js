@@ -4,7 +4,12 @@ require("./config.js");
 const { isBanned } = require("./lib/isBanned");
 const isOwner = require("./lib/isOwner");
 const { isSudo } = require("./lib/index");
-const { loadPrefix, savePrefix, isCommand, getCommand } = require("./lib/prefix");
+const {
+  loadPrefix,
+  savePrefix,
+  isCommand,
+  getCommand,
+} = require("./lib/prefix");
 const yts = require("yt-search");
 const { fetchBuffer } = require("./lib/myfunc");
 const fs = require("fs");
@@ -154,7 +159,7 @@ const channelInfo = {
     },
   },
 };
-const ownerList = JSON.parse(fs.readFileSync('./data/owner.json'));
+const ownerList = JSON.parse(fs.readFileSync("./data/owner.json"));
 const prefix = loadPrefix();
 
 async function handleMessages(sock, messageUpdate, printLog) {
@@ -292,9 +297,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
       "antilink",
       "mode",
     ];
-    const isAdminCommand = adminCommands.some((cmd) =>
-      command.startsWith(cmd)
-    );
+    const isAdminCommand = adminCommands.some((cmd) => command.startsWith(cmd));
 
     // List of owner commands
     const ownerCommands = [
@@ -308,15 +311,16 @@ async function handleMessages(sock, messageUpdate, printLog) {
       "autoreact",
       "setprefix",
     ];
-    const isOwnerCommand = ownerCommands.some((cmd) =>
-      command.startsWith(cmd)
-    );
+    const isOwnerCommand = ownerCommands.some((cmd) => command.startsWith(cmd));
 
     let isSenderAdmin = false;
     let isBotAdmin = false;
 
-    const senderNumber = senderId.split('@')[0];
-    const isOwnerOrSudo = message.key.fromMe || await isOwner(senderId) || await isSudo(senderId);
+    const senderNumber = senderId.split("@")[0];
+    const isOwnerOrSudo =
+      message.key.fromMe ||
+      (await isOwner(senderId)) ||
+      (await isSudo(senderId));
 
     // Check admin status only for admin commands in groups
     if (isGroup && isAdminCommand) {
@@ -326,17 +330,21 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
       if (!isBotAdmin) {
         await sock.sendMessage(chatId, {
-          text: "Sorry your name no dey for the owners list😞.",
+          text: "Please make the bot an admin to use this command",
           ...channelInfo,
         });
         return;
       }
 
       // allow owners to bypass admin restriction
-      if (!isSenderAdmin && !ownerList.includes(senderNumber) && !message.key.fromMe) {
+      if (
+        !isSenderAdmin &&
+        !ownerList.includes(senderNumber) &&
+        !message.key.fromMe
+      ) {
         await sock.sendMessage(chatId, {
-          text: 'Sorry bro, na only group admins or owners fit use this command.',
-          ...channelInfo
+          text: "Sorry bro, na only group admins or owners fit use this command.",
+          ...channelInfo,
         });
         return;
       }
@@ -347,8 +355,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
       const isOwnerOrSudo = require("./lib/isOwner");
       if (!(await isOwnerOrSudo(senderId))) {
         await sock.sendMessage(chatId, {
-          text: '❌ This command is only available for the owner!',
-          ...channelInfo
+          text: "❌ This command is only available for the owner!",
+          ...channelInfo,
         });
         return;
       }
@@ -583,8 +591,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
       case command === "news":
         await newsCommand(sock, chatId);
         break;
-      case command.startsWith("ttt") ||
-        command.startsWith("tictactoe"):
+      case command.startsWith("ttt") || command.startsWith("tictactoe"):
         const tttText = command.split(" ").slice(1).join(" ");
         await tictactoeCommand(sock, chatId, senderId, tttText);
         break;
@@ -854,8 +861,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         }
         await staffCommand(sock, chatId, message);
         break;
-      case command.startsWith("emojimix") ||
-        command.startsWith("emix"):
+      case command.startsWith("emojimix") || command.startsWith("emix"):
         await emojimixCommand(sock, chatId, message);
         break;
       case command.startsWith("tg") ||
@@ -893,13 +899,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         await textmakerCommand(sock, chatId, message, command, "snow");
         break;
       case command.startsWith("impressive"):
-        await textmakerCommand(
-          sock,
-          chatId,
-          message,
-          command,
-          "impressive"
-        );
+        await textmakerCommand(sock, chatId, message, command, "impressive");
         break;
       case command.startsWith("matrix"):
         await textmakerCommand(sock, chatId, message, command, "matrix");
@@ -983,8 +983,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
       case command.startsWith("gpt") || command.startsWith("gemini"):
         await aiCommand(sock, chatId, message);
         break;
-      case command.startsWith("translate") ||
-        command.startsWith("trt"):
+      case command.startsWith("translate") || command.startsWith("trt"):
         const commandLength = command.startsWith("translate") ? 9 : 3;
         await handleTranslateCommand(
           sock,

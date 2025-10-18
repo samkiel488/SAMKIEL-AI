@@ -143,12 +143,6 @@ const sudoCommand = require("./commands/sudo");
 const lidCommand = require("./commands/lid");
 
 // Helper functions
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-async function sendWithRecording(sock, chatId, message) {
-  await sock.sendPresenceUpdate('recording', chatId);
-  await delay(1200);
-  await sock.sendMessage(chatId, message);
-}
 
 // Global settings
 global.packname = settings.packname;
@@ -168,8 +162,10 @@ const channelInfo = {
     },
   },
 };
-const { jidNormalizedUser } = require('@whiskeysockets/baileys');
-const ownerList = JSON.parse(fs.readFileSync("./data/owner.json")).map(j => jidNormalizedUser(`${j}@s.whatsapp.net`));
+const { jidNormalizedUser } = require("@whiskeysockets/baileys");
+const ownerList = JSON.parse(fs.readFileSync("./data/owner.json")).map((j) =>
+  jidNormalizedUser(`${j}@s.whatsapp.net`)
+);
 const prefix = loadPrefix();
 
 async function handleMessages(sock, messageUpdate, printLog) {
@@ -294,24 +290,61 @@ async function handleMessages(sock, messageUpdate, printLog) {
       return;
     }
 
+    // Add delay for commands except specified ones
+    const noDelayCommands = ['ping', 'menu', 'help', 'bot', 'list', 'leap'];
+    if (isCommand(userMessage) && !noDelayCommands.some(c => command.startsWith(c))) {
+      const delayMs = isGroup ? 5000 : 10000;
+      try {
+        await sock.sendPresenceUpdate("recording", chatId);
+      } catch (e) {}
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      try {
+        await sock.sendPresenceUpdate("paused", chatId);
+      } catch (e) {}
+    }
+
     // Define command categories
     const adminOnlyCommands = [
-      "mute", "unmute", "ban", "unban", "promote", "demote", "kick", "tagall", "antilink"
+      "mute",
+      "unmute",
+      "ban",
+      "unban",
+      "promote",
+      "demote",
+      "kick",
+      "tagall",
+      "antilink",
     ];
     const ownerOnlyCommands = [
-      "mode", "autostatus", "antidelete", "cleartmp", "setpp", "clearsession", "areact", "autoreact", "setprefix"
+      "mode",
+      "autostatus",
+      "antidelete",
+      "cleartmp",
+      "setpp",
+      "clearsession",
+      "areact",
+      "autoreact",
+      "setprefix",
     ];
-    const hybridCommands = [
-      "welcome", "goodbye", "chatbot"
-    ];
+    const hybridCommands = ["welcome", "goodbye", "chatbot"];
 
-    const isAdminOnlyCommand = adminOnlyCommands.some((cmd) => command.startsWith(cmd));
-    const isOwnerOnlyCommand = ownerOnlyCommands.some((cmd) => command.startsWith(cmd));
-    const isHybridCommand = hybridCommands.some((cmd) => command.startsWith(cmd));
+    const isAdminOnlyCommand = adminOnlyCommands.some((cmd) =>
+      command.startsWith(cmd)
+    );
+    const isOwnerOnlyCommand = ownerOnlyCommands.some((cmd) =>
+      command.startsWith(cmd)
+    );
+    const isHybridCommand = hybridCommands.some((cmd) =>
+      command.startsWith(cmd)
+    );
 
     // Admin-only commands: Require admin status
     if (isGroup && isAdminOnlyCommand) {
-      const { isSenderAdmin, isBotAdmin } = await isAdmin(sock, chatId, senderId);
+      const { isSenderAdmin, isBotAdmin } = await isAdmin(
+        sock,
+        chatId,
+        senderId
+      );
 
       if (!isBotAdmin) {
         await sock.sendMessage(chatId, {
@@ -358,7 +391,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
     try {
       const data = JSON.parse(fs.readFileSync("./data/messageCount.json"));
       // Allow owner or sudo to use bot even in private mode
-      const hasAccess = await isOwner(senderId) || isSudoUser;
+      const hasAccess = (await isOwner(senderId)) || isSudoUser;
       if (!data.isPublic && !hasAccess) {
         return; // Silently ignore messages from non-owners/sudo when in private mode
       }
@@ -1003,8 +1036,13 @@ async function handleMessages(sock, messageUpdate, printLog) {
       case command.startsWith("areact") ||
         command.startsWith("autoreact") ||
         command.startsWith("autoreaction"):
-        await handleAreactCommand(sock, chatId, message, await isOwner(senderId));
-        await addCommandReaction(sock, message, 'areact');
+        await handleAreactCommand(
+          sock,
+          chatId,
+          message,
+          await isOwner(senderId)
+        );
+        await addCommandReaction(sock, message, "areact");
         break;
       case command === "goodnight" ||
         command === "lovenight" ||

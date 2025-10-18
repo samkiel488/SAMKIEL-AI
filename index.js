@@ -167,7 +167,7 @@ async function startXeonBotInc() {
                                 newsletterName: '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋',
                                 serverMessageId: -1
                             }
-                        }
+                        }   
                     }).catch(console.error);
                 }
             }
@@ -301,6 +301,7 @@ async function startXeonBotInc() {
             }
         }
     })
+     
 
     XeonBotInc.ev.on('creds.update', saveCreds)
     

@@ -325,21 +325,13 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
     // Owner-only commands: Require fromMe, sudo, or owner
     if (isOwnerOnlyCommand) {
-      console.log(`🔒 Checking owner command access for: ${senderId}`);
-      console.log(`🤖 fromMe: ${message.key.fromMe}`);
-      console.log(`👑 isSudoUser: ${isSudoUser}`);
-      const ownerCheck = isOwner(senderId);
-      console.log(`👑 isOwner result: ${ownerCheck}`);
-
-      if (!message.key.fromMe && !isSudoUser && !ownerCheck) {
-        console.log(`🚫 Access denied for owner command`);
+      if (!message.key.fromMe && !isSudoUser && !isOwner(senderId)) {
         await sock.sendMessage(chatId, {
           text: "❌ Sorry buddy this command can only be used by Ԇ・SAMKIEL.",
           ...channelInfo,
         });
         return;
       }
-      console.log(`✅ Access granted for owner command`);
     }
 
     // Hybrid commands: Allow both admins and owner

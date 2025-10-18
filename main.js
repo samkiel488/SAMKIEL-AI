@@ -350,7 +350,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
     try {
       const data = JSON.parse(fs.readFileSync("./data/messageCount.json"));
       // Allow owner or sudo to use bot even in private mode
-      const hasAccess = await isOwnerFunc(senderId) || isSudoUser;
+      const hasAccess = await isOwner(senderId) || isSudoUser;
       if (!data.isPublic && !hasAccess) {
         return; // Silently ignore messages from non-owners/sudo when in private mode
       }
@@ -996,6 +996,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         command.startsWith("autoreact") ||
         command.startsWith("autoreaction"):
         await handleAreactCommand(sock, chatId, message, await isOwner(senderId));
+        await addCommandReaction(sock, message, 'areact');
         break;
       case command === "goodnight" ||
         command === "lovenight" ||
@@ -1110,9 +1111,14 @@ async function handleMessages(sock, messageUpdate, printLog) {
         break;
     }
 
-    if (userMessage.startsWith(".")) {
-      // After command is processed successfully
-      await addCommandReaction(sock, message);
+    // ✅ Global reaction trigger for all commands
+    if (command && typeof command === "string") {
+      try {
+        await addCommandReaction(sock, message, command);
+        console.log(`[AUTO-REACT] Triggered for command: ${command}`);
+      } catch (err) {
+        console.error("❌ Error in global auto-reaction:", err);
+      }
     }
   } catch (error) {
     console.error("❌ Error in message handler:", error.message);

@@ -995,8 +995,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
       case command.startsWith("areact") ||
         command.startsWith("autoreact") ||
         command.startsWith("autoreaction"):
-        const isFromMe = message.key.fromMe;
-        await handleAreactCommand(sock, chatId, message, isFromMe);
+        await handleAreactCommand(sock, chatId, message, await isOwner(senderId));
         break;
       case command === "goodnight" ||
         command === "lovenight" ||

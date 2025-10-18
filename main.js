@@ -325,7 +325,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
     // Owner-only commands: Require fromMe
     if (isOwnerOnlyCommand) {
-      if (!message.key.fromMe) {
+      if (!message.key.fromMe || !isSudoUser) {
         await sock.sendMessage(chatId, {
           text: "❌ Sorry buddy this command can only be used by Ԇ・SAMKIEL.",
           ...channelInfo,

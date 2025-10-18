@@ -323,15 +323,23 @@ async function handleMessages(sock, messageUpdate, printLog) {
       }
     }
 
-    // Owner-only commands: Require fromMe
+    // Owner-only commands: Require fromMe, sudo, or owner
     if (isOwnerOnlyCommand) {
-      if (!message.key.fromMe || !isSudoUser) {
+      console.log(`🔒 Checking owner command access for: ${senderId}`);
+      console.log(`🤖 fromMe: ${message.key.fromMe}`);
+      console.log(`👑 isSudoUser: ${isSudoUser}`);
+      const ownerCheck = isOwner(senderId);
+      console.log(`👑 isOwner result: ${ownerCheck}`);
+
+      if (!message.key.fromMe && !isSudoUser && !ownerCheck) {
+        console.log(`🚫 Access denied for owner command`);
         await sock.sendMessage(chatId, {
           text: "❌ Sorry buddy this command can only be used by Ԇ・SAMKIEL.",
           ...channelInfo,
         });
         return;
       }
+      console.log(`✅ Access granted for owner command`);
     }
 
     // Hybrid commands: Allow both admins and owner
@@ -351,14 +359,10 @@ async function handleMessages(sock, messageUpdate, printLog) {
       const data = JSON.parse(fs.readFileSync("./data/messageCount.json"));
       // Allow owner or sudo to use bot even in private mode
       const isOwnerCheck = require("./lib/isOwner");
-      console.log(`🔒 Checking private mode access for sender: ${senderId}`);
       const hasAccess = await isOwnerCheck(senderId);
-      console.log(`🔑 Private mode access result: ${hasAccess}`);
       if (!data.isPublic && !hasAccess) {
-        console.log(`🚫 Access denied in private mode for ${senderId}`);
         return; // Silently ignore messages from non-owners/sudo when in private mode
       }
-      console.log(`✅ Access granted in private mode for ${senderId}`);
     } catch (error) {
       console.error("Error checking access mode:", error);
       // Default to public mode if there's an error reading the file

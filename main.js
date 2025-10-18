@@ -3,7 +3,6 @@ const settings = require("./settings");
 require("./config.js");
 const { isBanned } = require("./lib/isBanned");
 const isOwner = require("./lib/isOwner");
-const { isSudo } = require("./lib/index");
 const {
   loadPrefix,
   savePrefix,
@@ -25,6 +24,7 @@ const {
   addGoodbye,
   delGoodBye,
   isGoodByeOn,
+  isSudo,
 } = require("./lib/index");
 
 // Command imports
@@ -140,6 +140,7 @@ const updateCommand = require("./commands/update");
 const settingsCommand = require("./commands/settings");
 const soraCommand = require("./commands/sora");
 const sudoCommand = require("./commands/sudo");
+const lidCommand = require("./commands/lid");
 
 // Global settings
 global.packname = settings.packname;
@@ -159,7 +160,9 @@ const channelInfo = {
     },
   },
 };
-const ownerList = JSON.parse(fs.readFileSync("./data/owner.json"));
+const { jidNormalizedUser } = require('@whiskeysockets/baileys');
+const ownerList = JSON.parse(fs.readFileSync("./data/owner.json")).map(j => jidNormalizedUser(`${j}@s.whatsapp.net`));
+console.log(`🔄 Normalized ownerList:`, ownerList);
 const prefix = loadPrefix();
 
 async function handleMessages(sock, messageUpdate, printLog) {
@@ -284,78 +287,59 @@ async function handleMessages(sock, messageUpdate, printLog) {
       return;
     }
 
-    // List of admin commands
-    const adminCommands = [
-      "mute",
-      "unmute",
-      "ban",
-      "unban",
-      "promote",
-      "demote",
-      "kick",
-      "tagall",
-      "antilink",
-      "mode",
+    // Define command categories
+    const adminOnlyCommands = [
+      "mute", "unmute", "ban", "unban", "promote", "demote", "kick", "tagall", "antilink"
     ];
-    const isAdminCommand = adminCommands.some((cmd) => command.startsWith(cmd));
-
-    // List of owner commands
-    const ownerCommands = [
-      "mode",
-      "autostatus",
-      "antidelete",
-      "cleartmp",
-      "setpp",
-      "clearsession",
-      "areact",
-      "autoreact",
-      "setprefix",
+    const ownerOnlyCommands = [
+      "mode", "autostatus", "antidelete", "cleartmp", "setpp", "clearsession", "areact", "autoreact", "setprefix"
     ];
-    const isOwnerCommand = ownerCommands.some((cmd) => command.startsWith(cmd));
+    const hybridCommands = [
+      "welcome", "goodbye", "chatbot"
+    ];
 
-    let isSenderAdmin = false;
-    let isBotAdmin = false;
+    const isAdminOnlyCommand = adminOnlyCommands.some((cmd) => command.startsWith(cmd));
+    const isOwnerOnlyCommand = ownerOnlyCommands.some((cmd) => command.startsWith(cmd));
+    const isHybridCommand = hybridCommands.some((cmd) => command.startsWith(cmd));
 
-    const senderNumber = senderId.split("@")[0];
-    const isOwnerOrSudo =
-      message.key.fromMe ||
-      (await isOwner(senderId)) ||
-      (await isSudo(senderId));
-
-    // Check admin status only for admin commands in groups
-    if (isGroup && isAdminCommand) {
-      const adminStatus = await isAdmin(sock, chatId, senderId);
-      isSenderAdmin = adminStatus.isSenderAdmin;
-      isBotAdmin = adminStatus.isBotAdmin;
+    // Admin-only commands: Require admin status
+    if (isGroup && isAdminOnlyCommand) {
+      const { isSenderAdmin, isBotAdmin } = await isAdmin(sock, chatId, senderId);
 
       if (!isBotAdmin) {
         await sock.sendMessage(chatId, {
-          text: "Please make the bot an admin to use this command",
+          text: "Buddy you have to make me Admin that command.",
           ...channelInfo,
         });
         return;
       }
 
-      // allow owners to bypass admin restriction
-      if (
-        !isSenderAdmin &&
-        !ownerList.includes(senderNumber) &&
-        !message.key.fromMe
-      ) {
+      if (!isSenderAdmin) {
         await sock.sendMessage(chatId, {
-          text: "Sorry bro, na only group admins or owners fit use this command.",
+          text: "Buddy only group admins can use this command.",
           ...channelInfo,
         });
         return;
       }
     }
 
-    if (isOwnerCommand) {
-      // Check if sender is owner or sudo
-      const isOwnerOrSudo = require("./lib/isOwner");
-      if (!(await isOwnerOrSudo(senderId))) {
+    // Owner-only commands: Require fromMe
+    if (isOwnerOnlyCommand) {
+      if (!message.key.fromMe) {
         await sock.sendMessage(chatId, {
-          text: "❌ This command is only available for the owner!",
+          text: "❌ Sorry buddy this command can only be used by Ԇ・SAMKIEL.",
+          ...channelInfo,
+        });
+        return;
+      }
+    }
+
+    // Hybrid commands: Allow both admins and owner
+    if (isGroup && isHybridCommand) {
+      const { isSenderAdmin } = await isAdmin(sock, chatId, senderId);
+      if (!isSenderAdmin && !message.key.fromMe) {
+        await sock.sendMessage(chatId, {
+          text: "Buddy only group admins or bot owner can use this command.",
           ...channelInfo,
         });
         return;
@@ -366,10 +350,15 @@ async function handleMessages(sock, messageUpdate, printLog) {
     try {
       const data = JSON.parse(fs.readFileSync("./data/messageCount.json"));
       // Allow owner or sudo to use bot even in private mode
-      const isOwnerOrSudo = require("./lib/isOwner");
-      if (!data.isPublic && !(await isOwnerOrSudo(senderId))) {
+      const isOwnerCheck = require("./lib/isOwner");
+      console.log(`🔒 Checking private mode access for sender: ${senderId}`);
+      const hasAccess = await isOwnerCheck(senderId);
+      console.log(`🔑 Private mode access result: ${hasAccess}`);
+      if (!data.isPublic && !hasAccess) {
+        console.log(`🚫 Access denied in private mode for ${senderId}`);
         return; // Silently ignore messages from non-owners/sudo when in private mode
       }
+      console.log(`✅ Access granted in private mode for ${senderId}`);
     } catch (error) {
       console.error("Error checking access mode:", error);
       // Default to public mode if there's an error reading the file
@@ -461,7 +450,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         break;
       case command.startsWith("mode"):
         // Check if sender is owner or sudo
-        if (!isOwnerOrSudo) {
+        if (!message.key.fromMe && !isSudoUser) {
           await sock.sendMessage(chatId, {
             text: "❌ This command is only available for the owner!",
             ...channelInfo,
@@ -526,11 +515,19 @@ async function handleMessages(sock, messageUpdate, printLog) {
         await ownerCommand(sock, chatId);
         break;
       case command === "tagall":
-        if (isSenderAdmin || message.key.fromMe) {
-          await tagAllCommand(sock, chatId, senderId);
+        if (isGroup) {
+          const { isSenderAdmin } = await isAdmin(sock, chatId, senderId);
+          if (isSenderAdmin || message.key.fromMe) {
+            await tagAllCommand(sock, chatId, senderId);
+          } else {
+            await sock.sendMessage(chatId, {
+              text: "Sorry, only group admins can use the .tagall command.",
+              ...channelInfo,
+            });
+          }
         } else {
           await sock.sendMessage(chatId, {
-            text: "Sorry, only group admins can use the .tagall command.",
+            text: "This command can only be used in groups.",
             ...channelInfo,
           });
         }
@@ -1059,6 +1056,9 @@ async function handleMessages(sock, messageUpdate, printLog) {
         break;
       case command.startsWith("sudo"):
         await sudoCommand(sock, chatId, message);
+        break;
+      case command === "lid":
+        await lidCommand(sock, chatId, senderId, message);
         break;
       case command.startsWith("setprefix"):
         const newPrefix = command.split(" ")[1]?.trim();

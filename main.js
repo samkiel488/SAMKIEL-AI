@@ -2,7 +2,7 @@ const videoCommand = require("./commands/video");
 const settings = require("./settings");
 require("./config.js");
 const { isBanned } = require("./lib/isBanned");
-const isOwner = require("./lib/isOwner");
+const isOwnerFunc = require("./lib/isOwner");
 const {
   loadPrefix,
   savePrefix,
@@ -162,7 +162,6 @@ const channelInfo = {
 };
 const { jidNormalizedUser } = require('@whiskeysockets/baileys');
 const ownerList = JSON.parse(fs.readFileSync("./data/owner.json")).map(j => jidNormalizedUser(`${j}@s.whatsapp.net`));
-console.log(`🔄 Normalized ownerList:`, ownerList);
 const prefix = loadPrefix();
 
 async function handleMessages(sock, messageUpdate, printLog) {
@@ -325,7 +324,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
     // Owner-only commands: Require fromMe, sudo, or owner
     if (isOwnerOnlyCommand) {
-      if (!message.key.fromMe && !isSudoUser && !isOwner(senderId)) {
+      const isOwnerCheck = await isOwnerFunc(senderId);
+      if (!message.key.fromMe && !isSudoUser && !isOwnerCheck) {
         await sock.sendMessage(chatId, {
           text: "❌ Sorry buddy this command can only be used by Ԇ・SAMKIEL.",
           ...channelInfo,
@@ -350,8 +350,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
     try {
       const data = JSON.parse(fs.readFileSync("./data/messageCount.json"));
       // Allow owner or sudo to use bot even in private mode
-      const isOwnerCheck = require("./lib/isOwner");
-      const hasAccess = await isOwnerCheck(senderId);
+      const hasAccess = await isOwner(senderId);
       if (!data.isPublic && !hasAccess) {
         return; // Silently ignore messages from non-owners/sudo when in private mode
       }
@@ -446,7 +445,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
         break;
       case command.startsWith("mode"):
         // Check if sender is owner or sudo
-        if (!message.key.fromMe && !isSudoUser) {
+        const isOwnerForMode = await isOwnerFunc(senderId);
+        if (!message.key.fromMe && !isSudoUser && !isOwnerForMode) {
           await sock.sendMessage(chatId, {
             text: "❌ This command is only available for the owner!",
             ...channelInfo,
@@ -1003,8 +1003,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
       case command.startsWith("areact") ||
         command.startsWith("autoreact") ||
         command.startsWith("autoreaction"):
-        const isOwner = message.key.fromMe;
-        await handleAreactCommand(sock, chatId, message, isOwner);
+        const isFromMe = message.key.fromMe;
+        await handleAreactCommand(sock, chatId, message, isFromMe);
         break;
       case command === "goodnight" ||
         command === "lovenight" ||

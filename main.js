@@ -2,7 +2,7 @@ const videoCommand = require("./commands/video");
 const settings = require("./settings");
 require("./config.js");
 const { isBanned } = require("./lib/isBanned");
-const isOwnerFunc = require("./lib/isOwner");
+const isOwner = require("./lib/isOwner");
 const {
   loadPrefix,
   savePrefix,
@@ -324,8 +324,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
     // Owner-only commands: Require fromMe, sudo, or owner
     if (isOwnerOnlyCommand) {
-      const isOwnerCheck = await isOwnerFunc(senderId);
-      if (!message.key.fromMe && !isSudoUser && !isOwnerCheck) {
+      const isOwnerCheck = await isOwner(senderId);
+      if (!message.key.fromMe && !isOwnerCheck) {
         await sock.sendMessage(chatId, {
           text: "❌ Sorry buddy this command can only be used by Ԇ・SAMKIEL.",
           ...channelInfo,
@@ -350,7 +350,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
     try {
       const data = JSON.parse(fs.readFileSync("./data/messageCount.json"));
       // Allow owner or sudo to use bot even in private mode
-      const hasAccess = await isOwner(senderId);
+      const hasAccess = await isOwnerFunc(senderId) || isSudoUser;
       if (!data.isPublic && !hasAccess) {
         return; // Silently ignore messages from non-owners/sudo when in private mode
       }
@@ -444,15 +444,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         await attpCommand(sock, chatId, message);
         break;
       case command.startsWith("mode"):
-        // Check if sender is owner or sudo
-        const isOwnerForMode = await isOwnerFunc(senderId);
-        if (!message.key.fromMe && !isSudoUser && !isOwnerForMode) {
-          await sock.sendMessage(chatId, {
-            text: "❌ This command is only available for the owner!",
-            ...channelInfo,
-          });
-          return;
-        }
+        // The owner check is already done above in the ownerOnlyCommands block
         // Read current data first
         let data;
         try {

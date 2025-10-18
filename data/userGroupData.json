@@ -1,6 +1,12 @@
 {
-  "sudo": [
-    "2348087357158@s.whatsapp.net",
-    "2348137724567@s.whatsapp.net"
-  ]
+  "users": [],
+  "groups": [],
+  "antilink": {},
+  "antibadword": {},
+  "warnings": {},
+  "sudo": [],
+  "welcome": {},
+  "goodbye": {},
+  "chatbot": {},
+  "autoReaction": true
 }

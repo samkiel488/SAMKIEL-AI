@@ -1,113 +1,112 @@
-
 const axios = require('axios');
 const yts = require('yt-search');
-const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
-const util = require('util');
-const execPromise = util.promisify(exec);
+
+const AXIOS_DEFAULTS = {
+	timeout: 60000,
+	headers: {
+		'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+		'Accept': 'application/json, text/plain, */*'
+	}
+};
+
+async function tryRequest(getter, attempts = 3) {
+	let lastError;
+	for (let attempt = 1; attempt <= attempts; attempt++) {
+		try {
+			return await getter();
+		} catch (err) {
+			lastError = err;
+			if (attempt < attempts) {
+				await new Promise(r => setTimeout(r, 1000 * attempt));
+			}
+		}
+	}
+	throw lastError;
+}
+
+async function getIzumiDownloadByUrl(youtubeUrl) {
+	const apiUrl = `https://izumiiiiiiii.dpdns.org/downloader/youtube?url=${encodeURIComponent(youtubeUrl)}&format=mp3`;
+	const res = await tryRequest(() => axios.get(apiUrl, AXIOS_DEFAULTS));
+	if (res?.data?.result?.download) return res.data.result;
+	throw new Error('Izumi youtube?url returned no download');
+}
+
+async function getIzumiDownloadByQuery(query) {
+	const apiUrl = `https://izumiiiiiiii.dpdns.org/downloader/youtube-play?query=${encodeURIComponent(query)}`;
+	const res = await tryRequest(() => axios.get(apiUrl, AXIOS_DEFAULTS));
+	if (res?.data?.result?.download) return res.data.result;
+	throw new Error('Izumi youtube-play returned no download');
+}
+
+async function getOkatsuDownloadByUrl(youtubeUrl) {
+	const apiUrl = `https://okatsu-rolezapiiz.vercel.app/downloader/ytmp3?url=${encodeURIComponent(youtubeUrl)}`;
+	const res = await tryRequest(() => axios.get(apiUrl, AXIOS_DEFAULTS));
+	// Okatsu response shape: { status, creator, title, format, thumb, duration, cached, dl }
+	if (res?.data?.dl) {
+		return {
+			download: res.data.dl,
+			title: res.data.title,
+			thumbnail: res.data.thumb
+		};
+	}
+	throw new Error('Okatsu ytmp3 returned no download');
+}
 
 async function songCommand(sock, chatId, message) {
     try {
-        const text = message.message?.conversation || message.message?.extendedTextMessage?.text;
-        const searchQuery = text.split(' ').slice(1).join(' ').trim();
-        
-        if (!searchQuery) {
-            return await sock.sendMessage(chatId, { 
-                text: "What song do you want to download?"
-            });
+        const text = message.message?.conversation || message.message?.extendedTextMessage?.text || '';
+        if (!text) {
+            await sock.sendMessage(chatId, { text: 'Usage: .song <song name or YouTube link>' }, { quoted: message });
+            return;
         }
 
-        // Search for the song
-        const { videos } = await yts(searchQuery);
-        if (!videos || videos.length === 0) {
-            return await sock.sendMessage(chatId, { 
-                text: "No songs found!"
-            });
+        let video;
+        if (text.includes('youtube.com') || text.includes('youtu.be')) {
+			video = { url: text };
+        } else {
+			const search = await yts(text);
+			if (!search || !search.videos.length) {
+                await sock.sendMessage(chatId, { text: 'The song no exist' }, { quoted: message });
+                return;
+            }
+			video = search.videos[0];
         }
 
-        const video = videos[0];
-        const videoUrl = video.url;
-
-        // Send loading message
+        // Inform user
         await sock.sendMessage(chatId, {
-            text: `*${video.title}*\n\n*Duration:* ${formatDuration(video.duration.seconds)}\n*Views:* ${formatNumber(video.views)}\n\n_Downloading your song..._`
+            image: { url: video.thumbnail },
+            caption: `🎵 Downloading: *${video.title}*\n⏱ Duration: ${video.timestamp}`
         }, { quoted: message });
 
-        // Create temp directory if it doesn't exist
-        const tempDir = path.join(__dirname, '../temp');
-        if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir);
-        }
+		// Try Izumi primary by URL, then by query, then Okatsu fallback
+		let audioData;
+		try {
+			// 1) Primary: Izumi by youtube url
+			audioData = await getIzumiDownloadByUrl(video.url);
+		} catch (e1) {
+			try {
+				// 2) Secondary: Izumi search by query/title
+				const query = video.title || text;
+				audioData = await getIzumiDownloadByQuery(query);
+			} catch (e2) {
+				// 3) Fallback: Okatsu by youtube url
+				audioData = await getOkatsuDownloadByUrl(video.url);
+			}
+		}
 
-        const tempFile = path.join(tempDir, `${Date.now()}.mp3`);
-        const tempM4a = path.join(tempDir, `${Date.now()}.m4a`);
+		await sock.sendMessage(chatId, {
+			audio: { url: audioData.download || audioData.dl || audioData.url },
+			mimetype: 'audio/mpeg',
+			fileName: `${(audioData.title || video.title || 'song')}.mp3`,
+			ptt: false
+		}, { quoted: message });
 
-        try {
-            // Use the new API endpoint
-            const apiRes = await fetch(`https://apis-keith.vercel.app/download/dlmp3?url=${encodeURIComponent(videoUrl)}`);
-            const apiData = await apiRes.json();
-            
-            if (apiData && apiData.downloadUrl) {
-                // Download the file first
-                const response = await fetch(apiData.downloadUrl);
-                const buffer = await response.arrayBuffer(); // Changed from buffer() to arrayBuffer()
-                
-                // Write to temp file
-                fs.writeFileSync(tempM4a, Buffer.from(buffer));
-                
-                // Convert to MP3 with proper WhatsApp-compatible settings
-                await execPromise(`ffmpeg -i "${tempM4a}" -vn -acodec libmp3lame -ac 2 -ab 128k -ar 44100 "${tempFile}"`);
-                
-                // Check file size (increased minimum size check)
-                const stats = fs.statSync(tempFile);
-                if (stats.size < 5000) { // Changed from 1024 to 5000 bytes
-                    throw new Error('Conversion failed - file too small');
-                }
-
-                await sock.sendMessage(chatId, {
-                    audio: { url: tempFile },
-                    mimetype: "audio/mpeg",
-                    fileName: `${video.title}.mp3`,
-                    ptt: false
-                }, { quoted: message });
-
-                // Clean up temp files
-                setTimeout(() => {
-                    if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
-                    if (fs.existsSync(tempM4a)) fs.unlinkSync(tempM4a);
-                }, 5000);
-                return;
-            } else {
-                throw new Error('API response format unexpected');
-            }
-        } catch (error) {
-            console.error('Error with API:', error);
-            throw new Error("Failed to download the song from API");
-        }
-    } catch (error) {
-        console.error('Error in song command:', error);
-        await sock.sendMessage(chatId, { 
-            text: "Failed to download the song. Please try again later or try a different song."
-        });
+    } catch (err) {
+        console.error('Song command error:', err);
+        await sock.sendMessage(chatId, { text: '❌ Failed to download song.' }, { quoted: message });
     }
-}
-
-function formatDuration(seconds) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-    
-    if (hours > 0) {
-        return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-    } else {
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-}
-
-function formatNumber(num) {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 module.exports = songCommand;

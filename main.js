@@ -142,6 +142,14 @@ const soraCommand = require("./commands/sora");
 const sudoCommand = require("./commands/sudo");
 const lidCommand = require("./commands/lid");
 
+// Helper functions
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+async function sendWithRecording(sock, chatId, message) {
+  await sock.sendPresenceUpdate('recording', chatId);
+  await delay(1200);
+  await sock.sendMessage(chatId, message);
+}
+
 // Global settings
 global.packname = settings.packname;
 global.author = settings.author;
@@ -367,7 +375,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         if (quotedMessage?.stickerMessage) {
           await simageCommand(sock, quotedMessage, chatId);
         } else {
-          await sock.sendMessage(chatId, {
+          await sendWithRecording(sock, chatId, {
             text: "Please reply to a sticker with the simage command to convert it.",
             ...channelInfo,
           });

@@ -35,7 +35,7 @@ Some features include:
 ### 1. Fork the Repository
 
 <div align="center">
-  <a href="https://github.com/mruniquehacker/samkiel-ai-MD/fork">
+  <a href="https://github.com/mruniquehacker/samkiel-ai/fork">
     <img src="https://img.shields.io/badge/Fork-Repository-blue?style=for-the-badge" alt="Fork Repo"/>
   </a>
 </div>
@@ -57,7 +57,7 @@ Upload your **creds.json** file to the `session` folder.
 ### 3. Installation
 
 ```bash
-git clone https://github.com/mruniquehacker/samkiel-ai-MD.git
+git clone https://github.com/mruniquehacker/samkiel-ai.git
 cd SAMKIEL-AI
 npm install
 node main.js

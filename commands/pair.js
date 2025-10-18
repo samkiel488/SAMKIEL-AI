@@ -10,7 +10,7 @@ async function pairCommand(sock, chatId, message, q) {
           forwardingScore: 1,
           isForwarded: true,
           forwardedNewsletterMessageInfo: {
-            newsletterJid: "120363161513685998@newsletter",
+            newsletterJid: "120363400862271383@newsletter",
             newsletterName: "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 ",
             serverMessageId: -1,
           },
@@ -30,7 +30,7 @@ async function pairCommand(sock, chatId, message, q) {
           forwardingScore: 1,
           isForwarded: true,
           forwardedNewsletterMessageInfo: {
-            newsletterJid: "120363161513685998@newsletter",
+            newsletterJid: "120363400862271383@newsletter",
             newsletterName: "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 ",
             serverMessageId: -1,
           },
@@ -49,7 +49,7 @@ async function pairCommand(sock, chatId, message, q) {
             forwardingScore: 1,
             isForwarded: true,
             forwardedNewsletterMessageInfo: {
-              newsletterJid: "120363161513685998@newsletter",
+              newsletterJid: "120363400862271383@newsletter",
               newsletterName: "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 ",
               serverMessageId: -1,
             },
@@ -63,7 +63,7 @@ async function pairCommand(sock, chatId, message, q) {
           forwardingScore: 1,
           isForwarded: true,
           forwardedNewsletterMessageInfo: {
-            newsletterJid: "120363161513685998@newsletter",
+            newsletterJid: "120363400862271383@newsletter",
             newsletterName: "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 ",
             serverMessageId: -1,
           },
@@ -88,7 +88,7 @@ async function pairCommand(sock, chatId, message, q) {
               forwardingScore: 1,
               isForwarded: true,
               forwardedNewsletterMessageInfo: {
-                newsletterJid: "120363161513685998@newsletter",
+                newsletterJid: "120363400862271383@newsletter",
                 newsletterName: "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 ",
                 serverMessageId: -1,
               },
@@ -110,7 +110,7 @@ async function pairCommand(sock, chatId, message, q) {
             forwardingScore: 1,
             isForwarded: true,
             forwardedNewsletterMessageInfo: {
-              newsletterJid: "120363161513685998@newsletter",
+              newsletterJid: "120363400862271383@newsletter",
               newsletterName: "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 ",
               serverMessageId: -1,
             },
@@ -126,7 +126,7 @@ async function pairCommand(sock, chatId, message, q) {
         forwardingScore: 1,
         isForwarded: true,
         forwardedNewsletterMessageInfo: {
-          newsletterJid: "120363161513685998@newsletter",
+          newsletterJid: "120363400862271383@newsletter",
           newsletterName: "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 ",
           serverMessageId: -1,
         },

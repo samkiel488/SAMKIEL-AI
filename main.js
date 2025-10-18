@@ -104,7 +104,6 @@ const {
   autoStatusCommand,
   handleStatusUpdate,
 } = require("./commands/autostatus");
-const { simpCommand } = require("./commands/simp");
 const { stupidCommand } = require("./commands/stupid");
 const pairCommand = require("./commands/pair");
 const stickerTelegramCommand = require("./commands/stickertelegram");
@@ -906,9 +905,6 @@ async function handleMessages(sock, messageUpdate, printLog) {
       case command.startsWith("autostatus"):
         const autoStatusArgs = command.split(" ").slice(1);
         await autoStatusCommand(sock, chatId, message, autoStatusArgs);
-        break;
-      case command.startsWith("simp"):
-        await simpCommand(sock, chatId, message);
         break;
       case command.startsWith("pair") || command.startsWith("rent"): {
         const q = command.split(" ").slice(1).join(" ");

@@ -292,7 +292,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
     // Add delay for commands except specified ones
     const noDelayCommands = ['ping', 'menu', 'help', 'bot', 'list', 'leap'];
     if (isCommand(userMessage) && !noDelayCommands.some(c => command.startsWith(c))) {
-      const delayMs = isGroup ? 5000 : 10000;
+      const delayMs = isGroup ? 2000 : 5000;
       try {
         await sock.sendPresenceUpdate("recording", chatId);
       } catch (e) {}
@@ -324,6 +324,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
       "areact",
       "autoreact",
       "setprefix",
+      "owner",
     ];
     const hybridCommands = ["welcome", "goodbye", "chatbot"];
 
@@ -362,10 +363,10 @@ async function handleMessages(sock, messageUpdate, printLog) {
       }
     }
 
-    // Owner-only commands: Require fromMe, sudo, or owner
+    // Owner-only commands: Require owner only
     if (isOwnerOnlyCommand) {
       const isOwnerCheck = await isOwner(senderId);
-      if (!message.key.fromMe && !isOwnerCheck) {
+      if (!isOwnerCheck) {
         await sock.sendMessage(chatId, {
           text: "❌ Sorry buddy this command can only be used by Ԇ・SAMKIEL.",
           ...channelInfo,

@@ -1,6 +1,10 @@
-const axios = require('axios'); const fetch = require('node-fetch');
+const axios = require('axios');
+const fetch = require('node-fetch');
+const { appendMessage, getContext } = require('../lib/aiMemory');
 
-async function aiCommand(sock, chatId, message) { try { const text = message.message?.conversation || message.message?.extendedTextMessage?.text;
+async function aiCommand(sock, chatId, message) {
+    try {
+        const text = message.message?.conversation || message.message?.extendedTextMessage?.text;
 
 if (!text) {
         return await sock.sendMessage(chatId, { 
@@ -25,6 +29,13 @@ if (!text) {
             react: { text: '🤖', key: message.key }
         });
 
+        const userId = message.key.participant || message.key.remoteJid;
+        appendMessage(userId, 'user', query);
+        const context = getContext(userId);
+        const formattedContext = context.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+        const finalPrompt = `${formattedContext}\nAI:`;
+
+
         if (command === '.gpt') {
             // Array of GPT API endpoints
             const gptApis = [
@@ -41,6 +52,7 @@ if (!text) {
 
                     if (response.data && (response.data.message || response.data.result || response.data.answer || response.data.prompt)) {
                         const answer = response.data.message || response.data.result || response.data.answer || response.data.prompt;
+                        appendMessage(userId, "assistant", answer);
                         await sock.sendMessage(chatId, {
                             text: answer
                         }, {
@@ -72,6 +84,7 @@ if (!text) {
 
                     if (data.message || data.data || data.answer || data.result) {
                         const answer = data.message || data.data || data.answer || data.result;
+                        appendMessage(userId, "assistant", answer);
                         await sock.sendMessage(chatId, {
                             text: answer
                         }, {

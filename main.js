@@ -137,6 +137,7 @@ const {
 const removebg = require("./commands/removebg");
 const updateCommand = require("./commands/update");
 const settingsCommand = require("./commands/settings");
+const { vcfCommand } = require("./commands/vcf");
 const soraCommand = require("./commands/sora");
 const sudoCommand = require("./commands/sudo");
 const lidCommand = require("./commands/lid");
@@ -543,6 +544,17 @@ async function handleMessages(sock, messageUpdate, printLog) {
       case command === "owner":
         await ownerCommand(sock, chatId);
         break;
+
+      case command === "vcf":
+        if (!isGroup) {
+          await sock.sendMessage(chatId, {
+            text: "This command can only be used in groups!",
+          });
+          return;
+        }
+        await vcfCommand(sock, chatId);
+        break;
+
       case command === "tagall":
         if (isGroup) {
           const { isSenderAdmin } = await isAdmin(sock, chatId, senderId);

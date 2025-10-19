@@ -552,6 +552,15 @@ async function handleMessages(sock, messageUpdate, printLog) {
           });
           return;
         }
+        // Check if sender is admin or owner
+        const { isSenderAdmin } = await isAdmin(sock, chatId, senderId);
+        const isOwnerCheck = await isOwner(senderId);
+        if (!isSenderAdmin && !isOwnerCheck) {
+          await sock.sendMessage(chatId, {
+            text: "Only group admins or bot owner can use this command.",
+          });
+          return;
+        }
         await vcfCommand(sock, chatId);
         break;
 

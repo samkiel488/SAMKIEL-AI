@@ -32,7 +32,7 @@ async function vcfCommand(sock, chatId) {
       document: { url: filePath },
       mimetype: "text/vcard",
       fileName: `samkielvcf.vcf`,
-    //   caption: "📇 Group contacts generated successfully!\nDownload and export\n\nDon't know how to configure? use the _vcfconfigure_ cmd",
+      caption: "📇 Group contacts exported successfully!",
     });
 
     fs.unlinkSync(filePath); // clean up

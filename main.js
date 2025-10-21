@@ -388,18 +388,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
       }
     }
 
-    // Add this near the start of your message handling logic, before processing commands
-    try {
-      const data = JSON.parse(fs.readFileSync("./data/messageCount.json"));
-      // Allow owner or sudo to use bot even in private mode
-      const hasAccess = (await isOwner(senderId)) || isSudoUser;
-      if (!data.isPublic && !hasAccess) {
-        return; // Silently ignore messages from non-owners/sudo when in private mode
-      }
-    } catch (error) {
-      console.error("Error checking access mode:", error);
-      // Default to public mode if there's an error reading the file
-    }
+
 
     // Command handlers
     switch (true) {

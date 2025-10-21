@@ -1,12 +1,14 @@
 {
-  "users": [],
-  "groups": [],
-  "antilink": {},
   "antibadword": {},
-  "warnings": {},
-  "sudo": [],
+  "antilink": {},
   "welcome": {},
   "goodbye": {},
   "chatbot": {},
+  "warnings": {},
+  "sudo": [
+    "23484800347@s.whatsapp.net"
+  ],
+  "users": [],
+  "groups": [],
   "autoReaction": true
 }

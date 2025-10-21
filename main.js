@@ -197,6 +197,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
     let userMessage =
       message.message?.conversation?.trim().toLowerCase() ||
       message.message?.extendedTextMessage?.text?.trim().toLowerCase() ||
+      message.message?.listResponseMessage?.singleSelectReply?.selectedRowId?.trim().toLowerCase() ||
+      message.message?.buttonsResponseMessage?.selectedButtonId?.trim().toLowerCase() ||
       "";
     userMessage = userMessage.replace(/\.\s+/g, ".").trim();
 

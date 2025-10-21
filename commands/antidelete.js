@@ -107,7 +107,7 @@ async function storeMessage(sock, message) {
         const config = loadAntideleteConfig();
         if (!config.enabled) return; // Don't store if antidelete is disabled
 
-        if (!message?.key?.id) return;
+        if (!message?.key?.id || !message?.key) return;
 
         const messageId = message.key.id;
         let content = '';

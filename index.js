@@ -29,7 +29,7 @@ const {
     generateWAMessageFromContent,
     generateMessageID,
     downloadContentFromMessage,
-    jidDecode,
+    jidDecode,  
     proto,
     jidNormalizedUser,
     makeCacheableSignalKeyStore,

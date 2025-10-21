@@ -21,7 +21,7 @@ module.exports = async function (sock, chatId, message) {
                 if (validCategories[suffix]) {
                     category = validCategories[suffix];
                 } else {
-                    await sock.sendMessage(chatId, { text: 'Invalid joke category. Available: programming, misc, dark, pun, spooky, christmas' });
+                    await global.reply(sock, message, { text: 'Invalid joke category. Available: programming, misc, dark, pun, spooky, christmas' });
                     return;
                 }
             }
@@ -31,9 +31,9 @@ module.exports = async function (sock, chatId, message) {
             headers: { Accept: 'application/json' }
         });
         const joke = response.data.joke;
-        await sock.sendMessage(chatId, { text: joke });
+        await global.reply(sock, message, { text: joke });
     } catch (error) {
         console.error('Error fetching joke:', error);
-        await sock.sendMessage(chatId, { text: 'Sorry, I could not fetch a joke right now.' });
+        await global.reply(sock, message, { text: 'Sorry, I could not fetch a joke right now.' });
     }
 };

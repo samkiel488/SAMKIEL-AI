@@ -1,4 +1,4 @@
-var { downloadContentFromMessage } = require('@whiskeysockets/baileys');
+var { downloadContentFromMessage } = require('baileys');
 var { exec } = require('child_process');
 var fs = require('fs');
 const ffmpeg = require('ffmpeg-static');

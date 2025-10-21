@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+const { downloadMediaMessage } = require('baileys');
 const webp = require('node-webpmux');
 const crypto = require('crypto');
 

@@ -9,10 +9,10 @@ const { handleMessages, handleGroupParticipantUpdate, handleStatus } = require('
 const PhoneNumber = require('awesome-phonenumber')
 const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/exif')
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetch, await, sleep, reSize } = require('./lib/myfunc')
-const { 
+const {
     default: makeWASocket,
-    useMultiFileAuthState, 
-    DisconnectReason, 
+    useMultiFileAuthState,
+    DisconnectReason,
     fetchLatestBaileysVersion,
     generateForwardMessageContent,
     prepareWAMessageMedia,
@@ -24,12 +24,12 @@ const {
     jidNormalizedUser,
     makeCacheableSignalKeyStore,
     delay
-} = require("@whiskeysockets/baileys")
+} = require("baileys")
 const NodeCache = require("node-cache")
 const pino = require("pino")
 const readline = require("readline")
 const { parsePhoneNumber } = require("libphonenumber-js")
-const { PHONENUMBER_MCC } = require('@whiskeysockets/baileys/lib/Utils/generics')
+const { PHONENUMBER_MCC } = require('baileys/lib/Utils/generics')
 const { rmSync, existsSync } = require('fs')
 const { join } = require('path')
 
@@ -113,6 +113,7 @@ const question = (text) => {
 
 async function startXeonBotInc() {
     let { version, isLatest } = await fetchLatestBaileysVersion()
+    console.log(`Baileys version: ${version}, isLatest: ${isLatest}`)
     const { state, saveCreds } = await useMultiFileAuthState(`./session`)
     const msgRetryCounterCache = new NodeCache()
 

@@ -1,3 +1,6 @@
+// Global reply function is now defined in index.js before requiring main.js
+// No need to redefine it here
+
 const videoCommand = require("./commands/video");
 const settings = require("./settings");
 require("./config.js");
@@ -141,8 +144,6 @@ const { vcfCommand } = require("./commands/vcf");
 const soraCommand = require("./commands/sora");
 const sudoCommand = require("./commands/sudo");
 const lidCommand = require("./commands/lid");
-
-// Helper functions
 
 // Global settings
 global.packname = settings.packname;
@@ -724,10 +725,10 @@ async function handleMessages(sock, messageUpdate, printLog) {
         await demoteCommand(sock, chatId, mentionedJidListDemote, message);
         break;
       case command === "ping":
-        await pingCommand(sock, chatId);
+        await pingCommand(sock, chatId, message);
         break;
       case command === "alive":
-        await aliveCommand(sock, chatId);
+        await aliveCommand(sock, chatId, message);
         break;
       case command.startsWith("blur"):
         const quotedMessage =

@@ -1,5 +1,5 @@
 const settings = require("../settings");
-async function aliveCommand(sock, chatId) {
+async function aliveCommand(sock, chatId, message) {
     try {
         const message = `*𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋 is Active!*\n\n` +
                        `*Version:* ${settings.version}\n` +
@@ -12,7 +12,7 @@ async function aliveCommand(sock, chatId) {
                        `• And more!\n\n` +
                        `Type *.menu* for full command list`;
 
-        await sock.sendMessage(chatId, {
+        await global.reply(sock, message, {
             text: message,
             contextInfo: {
                 forwardingScore: 999,
@@ -26,7 +26,7 @@ async function aliveCommand(sock, chatId) {
         });
     } catch (error) {
         console.error('Error in alive command:', error);
-        await sock.sendMessage(chatId, { text: 'Bot is alive and running!' });
+        await global.reply(sock, message, { text: 'Bot is alive and running!' });
     }
 }
 

@@ -1,16 +1,16 @@
-# Baileys Migration Plan
+z# TODO: Modify WhatsApp Bot to Reply Directly to Messages
 
-## Completed
-- [x] Update package.json: Remove "@whiskeysockets/baileys" and add "baileys": "github:nstar-y/bail"
-- [x] Run dependency commands: npm uninstall @whiskeysockets/baileys && rm -rf node_modules package-lock.json && npm install --legacy-peer-deps
+## Completed Tasks
+- [ ] Analyze codebase and create implementation plan
+- [ ] Create TODO.md file for tracking progress
 
-## In Progress
-- [ ] Replace all imports: Change every "@whiskeysockets/baileys" to "baileys" in all affected files
-- [ ] Update JID filtering: Replace strict '@s.whatsapp.net' checks with regex to accept LID groups
-- [ ] Add version logging: Insert console.log after fetchLatestBaileysVersion call
-- [ ] Verify migration: Test with node index.js --pairing-code
-
-## Files to Edit
-- settings.js, index.js, main.js
-- lib/ files: antilink.js, isOwner.js, myfunc.js, welcome.js
-- Commands: antidelete.js, groupmanage.js, img-blur.js, removebg.js, setpp.js, remini.js, simage-alt.js, simage.js, sticker.js, tag.js, sticker-alt.js, take.js, url.js, viewonce.js, vcf.js
+## Pending Tasks
+- [ ] Add reply helper function to main.js
+- [ ] Update command function signatures in commands/*.js to accept message parameter
+- [ ] Replace sendMessage calls with reply calls in command implementations
+- [ ] Update command function calls in main.js to pass message object
+- [ ] Replace direct sendMessage calls in main.js with reply calls
+- [ ] Optionally add global reply helper to index.js
+- [ ] Test bot responses to ensure messages are properly quoted
+- [ ] Verify all commands work correctly with quoted replies
+- [ ] Check for any missed sendMessage calls in other files

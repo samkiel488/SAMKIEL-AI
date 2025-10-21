@@ -36,11 +36,11 @@ async function pingCommand(sock, chatId, message) {
 ┗━━━━━━━━━━━━━━━━━━━┛`.trim();
 
         // Reply to the original message with the bot info
-        await sock.sendMessage(chatId, { text: botInfo, quoted: message });
+        await global.reply(sock, message, { text: botInfo });
 
     } catch (error) {
         console.error('Error in ping command:', error);
-        await sock.sendMessage(chatId, { text: '❌ Failed to get bot status.' });
+        await global.reply(sock, message, { text: '❌ Failed to get bot status.' });
     }
 }
 

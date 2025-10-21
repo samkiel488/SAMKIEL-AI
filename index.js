@@ -1,3 +1,13 @@
+// Global reply function - define before requiring main.js
+global.reply = async (sock, message, content) => {
+  try {
+    const chatId = message.key.remoteJid;
+    await sock.sendMessage(chatId, { ...content }, { quoted: message });
+  } catch (err) {
+    console.error("Error in global.reply:", err);
+  }
+};
+
 require('./settings')
 const { Boom } = require('@hapi/boom')
 const fs = require('fs')

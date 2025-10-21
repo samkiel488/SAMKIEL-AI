@@ -1,195 +1,135 @@
-const settings = require('../settings');
-const fs = require('fs');
-const path = require('path');
+const settings = require("../settings");
 
 async function helpCommand(sock, chatId, channelLink) {
-    const helpMessage = `
-╔═══════════════════╗
-   🤖 *${settings.botName || '𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋'}*  
-   🌟 Version: *${settings.version || '1.2.1'}*
-   🛠️ Developer: *${settings.botOwner || 'ѕαмкιєℓ.∂єν'}*
-   🔗 LinkedIn: samkieldev
-╚═══════════════════╝
-
-*Available Commands:*
-
-╔═══════════════════╗
-🌐 *General Commands*:
-║ ✧ 🛎️ .help 
-║ ✧ 🏓 .ping
-║ ✧ 🟢 .alive
-║ ✧ 🗣️ .tts <text>
-║ ✧ 👤 .owner
-║ ✧ 😂 .joke
-║ ✧ 💭 .quote
-║ ✧ 🤔 .fact
-║ ✧ 🌦️ .weather <city>
-║ ✧ 📰 .news
-║ ✧ 🎨 .attp <text>
-║ ✧ 🎵 .lyrics <song_title>
-║ ✧ 🎱 .8ball <question>
-║ ✧ 🏷️ .groupinfo
-║ ✧ 👥 .staff or .admins 
-║ ✧ 🆚 .vv
-║ ✧ 💌 .pair or .rent
-║ ✧ 🌍 .trt <text> <lang>
-║ ✧ 📸 .ss <link>
-╚═══════════════════╝ 
-
-╔═══════════════════╗
-👮‍♂️ *Admin Commands*:
-║ ✧ 🔨 .ban @user
-║ ✧ ⬆️ .promote @user
-║ ✧ ⬇️ .demote @user
-║ ✧ ⏱️ .mute <minutes>
-║ ✧ 🔊 .unmute
-║ ✧ ❌ .delete or .del
-║ ✧ 🚫 .kick @user
-║ ✧ 📊 .warnings @user
-║ ✧ ⚠️ .warn @user
-║ ✧ 🔗 .antilink
-║ ✧ 🛡️ .antibadword
-║ ✧ 🧹 .clear
-║ ✧ 📣 .tag <message>
-║ ✧ 📢 .tagall
-║ ✧ 🤖 .chatbot
-║ ✧ 🔄 .resetlink
-╚═══════════════════╝
-
-╔═══════════════════╗
-🔒 *Owner Commands*:
-║ ✧ 🛠️ .mode
-║ ✧ 📤 .autostatus
-║ ✧ 🗑️ .clearsession
-║ ✧ 🔍 .antidelete
-║ ✧ 🧽 .cleartmp
-║ ✧ 🖼️ .setpp <reply to image>
-║ ✧ 🤖 .autoreact
-╚═══════════════════╝
-
-╔═══════════════════╗
-🎨 *Image/Sticker Commands*:
-║ ✧ 🌀 .blur <image>
-║ ✧ 🌅 .simage <reply to sticker>
-║ ✧ 🖼️ .sticker <reply to image>
-║ ✧ 🎴 .tgsticker <Link>
-║ ✧ 🤣 .meme
-║ ✧ ✍️ .take <packname>
-║ ✧ 🔀 .emojimix <emj1>+<emj2>
-╚═══════════════════╝  
-
-╔═══════════════════╗
-🎮 *Game Commands*:
-║ ✧ 🎮 .tictactoe @user
-║ ✧ 🧩 .hangman
-║ ✧ 🔡 .guess <letter>
-║ ✧ 🧠 .trivia
-║ ✧ ❓ .answer <answer>
-║ ✧ 💬 .truth
-║ ✧ 🎯 .dare
-╚═══════════════════╝
-
-╔═══════════════════╗
-🤖 *AI Commands*:
-║ ✧ 💡 .gpt <question>
-║ ✧ 🧠 .gemini <question>
-╚═══════════════════╝
-
-╔═══════════════════╗
-🎯 *Fun Commands*:
-║ ✧ 🌟 .compliment @user
-║ ✧ 😡 .insult @user
-║ ✧ 💌 .flirt 
-║ ✧ 🎤 .shayari
-║ ✧ 🌙 .goodnight
-║ ✧ 🌹 .roseday
-║ ✧ 🧙‍♂️ .character @user
-║ ✧ ☠️ .wasted @user
-║ ✧ ❤️‍🔥 .ship @user
-║ ✧ 😘 .simp @user
-║ ✧ 🤦‍♂️ .stupid @user [text]
-╚═══════════════════╝
-
-╔═══════════════════╗
-🔤 *Textmaker*:
-║ ✧ ✨ .metallic <text>
-║ ✧ ❄️ .ice <text>
-║ ✧ ⛄ .snow <text>
-║ ✧ 🌟 .impressive <text>
-║ ✧ 🖥️ .matrix <text>
-║ ✧ 💡 .light <text>
-║ ✧ 🌈 .neon <text>
-║ ✧ 😈 .devil <text>
-║ ✧ 💜 .purple <text>
-║ ✧ ⚡ .thunder <text>
-║ ✧ 🍃 .leaves <text>
-║ ✧ 🎞️ .1917 <text>
-║ ✧ 🛡️ .arena <text>
-║ ✧ 🖥️ .hacker <text>
-║ ✧ 🏖️ .sand <text>
-║ ✧ 🎤 .blackpink <text>
-║ ✧ 🖥️ .glitch <text>
-║ ✧ 🔥 .fire <text>
-╚═══════════════════╝
-
-╔═══════════════════╗
-📥 *Downloader*:
-║ ✧ 🎵 .play <song_name>
-║ ✧ 🎧 .song <song_name>
-║ ✧ 📸 .instagram <link>
-║ ✧ 📘 .facebook <link>
-║ ✧ 🎬 .tiktok <link>
-╚═══════════════════╝
-
-╔═══════════════════╗
-💻 *Github Commands*:
-║ ✧ 🧩 .git
-║ ✧ 🛠️ .github
-║ ✧ ⚙️ .sc
-║ ✧ 📂 .script
-║ ✧ 📁 .repo
-╚═══════════════════╝
-
-✉️ Join our channel for updates:`;
-
-    try {
-        const imagePath = path.join(__dirname, '../assets/bot_image.jpg');
-        
-        if (fs.existsSync(imagePath)) {
-            const imageBuffer = fs.readFileSync(imagePath);
-            
-            await sock.sendMessage(chatId, {
-                image: imageBuffer,
-                caption: helpMessage,
-                contextInfo: {
-                    forwardingScore: 1,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363400862271383@newsletter',
-                        newsletterName: 'Made with 🤍 by Ԇ・SAMKIEL',
-                        serverMessageId: -1
-                    }
-                }
-            });
-        } else {
-            console.error('Bot image not found at:', imagePath);
-            await sock.sendMessage(chatId, { 
-                text: helpMessage,
-                contextInfo: {
-                    forwardingScore: 1,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363400862271383@newsletter',
-                        newsletterName: 'Made with 🤍 by Ԇ・SAMKIEL',
-                        serverMessageId: -1
-                    } 
-                }
-            });
-        }
-    } catch (error) {
-        console.error('Error in help command:', error);
-        await sock.sendMessage(chatId, { text: helpMessage });
-    }
+  try {
+    await sock.sendMessage(chatId, {
+      text: `🤖 ${settings.botName || "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋"} Command Menu`,
+      footer: "Made with 🤍 by ѕαмкιєℓ.∂єν",
+      buttonText: "📜 Open Menu",
+      sections: [
+        {
+          title: "🌐 General Commands",
+          rows: [
+            {
+              title: ".help",
+              rowId: ".help",
+              description: "Show all available commands",
+            },
+            {
+              title: ".ping",
+              rowId: ".ping",
+              description: "Check bot speed and latency",
+            },
+            {
+              title: ".alive",
+              rowId: ".alive",
+              description: "Check if bot is running",
+            },
+            {
+              title: ".tts <text>",
+              rowId: ".tts Hello",
+              description: "Convert text to speech",
+            },
+            {
+              title: ".quote",
+              rowId: ".quote",
+              description: "Get a random quote",
+            },
+            {
+              title: ".fact",
+              rowId: ".fact",
+              description: "Random interesting fact",
+            },
+          ],
+        },
+        {
+          title: "👮‍♂️ Admin Commands",
+          rows: [
+            {
+              title: ".ban @user",
+              rowId: ".ban @user",
+              description: "Ban a member from using the bot",
+            },
+            {
+              title: ".promote @user",
+              rowId: ".promote @user",
+              description: "Promote member to admin",
+            },
+            {
+              title: ".demote @user",
+              rowId: ".demote @user",
+              description: "Demote admin to member",
+            },
+            {
+              title: ".kick @user",
+              rowId: ".kick @user",
+              description: "Remove user from group",
+            },
+            {
+              title: ".tagall",
+              rowId: ".tagall",
+              description: "Mention all members in group",
+            },
+            {
+              title: ".antilink",
+              rowId: ".antilink",
+              description: "Enable or disable anti-link protection",
+            },
+          ],
+        },
+        {
+          title: "🎮 Game Commands",
+          rows: [
+            {
+              title: ".tictactoe @user",
+              rowId: ".tictactoe",
+              description: "Play Tic Tac Toe with a friend",
+            },
+            {
+              title: ".hangman",
+              rowId: ".hangman",
+              description: "Start a game of Hangman",
+            },
+            {
+              title: ".trivia",
+              rowId: ".trivia",
+              description: "Answer random trivia questions",
+            },
+            {
+              title: ".truth",
+              rowId: ".truth",
+              description: "Get a truth question",
+            },
+            {
+              title: ".dare",
+              rowId: ".dare",
+              description: "Get a dare challenge",
+            },
+          ],
+        },
+        {
+          title: "🤖 AI Commands",
+          rows: [
+            {
+              title: ".gpt <question>",
+              rowId: ".gpt What is AI?",
+              description: "Chat with GPT AI",
+            },
+            {
+              title: ".gemini <question>",
+              rowId: ".gemini Explain quantum computing",
+              description: "Ask Google Gemini AI",
+            },
+          ],
+        },
+      ],
+    });
+  } catch (error) {
+    console.error("Error in help command:", error);
+    await sock.sendMessage(chatId, {
+      text: "❌ Failed to load menu. Please try again later.",
+    });
+  }
 }
 
 module.exports = helpCommand;

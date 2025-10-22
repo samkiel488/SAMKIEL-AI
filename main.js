@@ -273,20 +273,36 @@ async function handleMessages(sock, messageUpdate, printLog) {
       return;
     }
 
-    // Basic message response in private chat
+    // Basic message response in private chat (modernized & interactive)
     if (
       !isGroup &&
-      (userMessage === "hi" ||
-        userMessage === "hello" ||
-        userMessage === "ezekiel" ||
-        userMessage === "bot" ||
-        userMessage === "samkiel" ||
-        userMessage === "hey" ||
-        userMessage === "bro")
+      ["hi", "hello", "ezekiel", "bot", "samkiel", "hey", "bro"].includes(
+        userMessage.toLowerCase()
+      )
     ) {
       await sock.sendMessage(chatId, {
-        text: "Hi, This is SAMKIEL AI, How can I help you?\nYou can use .menu for more info and commands.",
-        ...channelInfo,
+        text: `👋 Hi there! I'm *${settings.botName || "SAMKIEL AI"}*.
+
+I'm your AI assistant — ready to help you with commands, tools, and automation.
+
+You can explore all available commands by tapping *Open Menu* below 👇`,
+        footer: "Made with 🤍 by ѕαмкιєℓ.∂єν",
+        templateButtons: [
+          {
+            index: 1,
+            urlButton: {
+              displayText: "🔗 LinkedIn",
+              url: "https://www.linkedin.com/in/samkiel", // update if your LinkedIn handle differs
+            },
+          },
+          {
+            index: 2,
+            quickReplyButton: {
+              displayText: "📜 Open Menu",
+              id: ".menu",
+            },
+          },
+        ],
       });
       return;
     }

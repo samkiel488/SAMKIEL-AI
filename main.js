@@ -444,7 +444,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         await unbanCommand(sock, chatId, message);
         break;
       case command === "update":
-        await updateCommand(sock, chatId, message, isSudoUser);
+        await updateCommand(sock, chatId, message, ownerList);
         break;
       case command === "help" ||
         command === "menu" ||

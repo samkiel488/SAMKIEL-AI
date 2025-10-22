@@ -1,7 +1,8 @@
+const fs = require("fs");
+const path = require("path");
 const settings = require("../settings");
-const os = require("os");
 
-// helper function to format uptime nicely
+// Helper to format uptime
 function formatUptime(seconds) {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -11,13 +12,14 @@ function formatUptime(seconds) {
 
 async function helpCommand(sock, chatId, channelLink) {
   try {
-    // Calculate uptime
     const uptime = formatUptime(process.uptime());
-
-    // Count total commands (keep updated or compute dynamically)
     const totalCommands = 96;
+    const botImagePath = path.resolve(__dirname, "../assets/bot_image.jpg");
 
-    await sock.sendMessage(chatId, {
+    // Check if image exists before sending
+    if (fs.existsSync(botImagePath)) {
+      await sock.sendMessage(chatId, {
+      image: { url: botImagePath },
       text: `╭───〔 🤖 ${settings.botName || "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋"} 〕───╮
 │ ⏱️ Uptime: ${uptime}
 │ ⚙️ Commands: ${totalCommands}

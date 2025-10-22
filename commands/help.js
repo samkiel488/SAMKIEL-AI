@@ -453,28 +453,7 @@ async function helpCommand(sock, chatId, channelLink) {
             },
           ],
         },
-        {
-          title: "💻 GitHub Commands",
-          rows: [
-            { title: "git", rowId: ".git", description: "Show GitHub info" },
-            {
-              title: "github",
-              rowId: ".github",
-              description: "Show developer GitHub",
-            },
-            {
-              title: "repo",
-              rowId: ".repo",
-              description: "Get bot repository",
-            },
-            {
-              title: "script",
-              rowId: ".script",
-              description: "Get bot script",
-            },
-          ],
-        },
-      ],
+        ],
     });
   } catch (error) {
     console.error("Error in help command:", error);

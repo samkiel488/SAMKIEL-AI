@@ -11,7 +11,7 @@ const settings = {
   commandMode: "public",
   description:
     "This is a bot for managing group commands and automating tasks.",
-  version: "2.0",
+  version: "3.2",
 
 
   updateZipUrl:

@@ -3,13 +3,14 @@ const settings = require("../settings");
 async function helpCommand(sock, chatId, channelLink) {
   try {
     await sock.sendMessage(chatId, {
-      text: `*🤖 𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋*
-*🌟 Version:* ${settings.version || "3.0"}
-*🛠️ Developer:* ${settings.botOwner || "ѕαмкιєℓ.∂єν"}
-*🔗 Website:* https://samkiel.dev
-
-📣 _*Follow Channel*_
-            https://whatsapp.com/channel/0029VbAhWo3C6Zvf2t4Rne0h`,
+      text: `╭───〔 *🤖 SAMKIEL BOT* 〕───╮
+│ 🌟 *Version:* ${settings.version || "2.0"}
+│ 🛠️ *Developer:* ${settings.botOwner || "ѕαмкιєℓ.∂єν"}
+│ 🌐 *Website:* https://samkiel.dev
+│ 
+│ 📣 *Follow Channel:*
+│ https://whatsapp.com/channel/0029VbAhWo3C6Zvf2t4Rne0h
+╰─────────────────────────────╯`,
       footer: "Made with 🤍 by ѕαмкιєℓ.∂єν",
       buttonText: "📜 Open Menu",
       sections: [

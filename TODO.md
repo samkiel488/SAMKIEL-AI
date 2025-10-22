@@ -1,15 +1,7 @@
-# TODO: Modify WhatsApp Bot to Reply Directly to Messages
+# Fix Command Detection Logic
 
-## Completed Tasks
-- [x] Analyze codebase and create implementation plan
-- [x] Create TODO.md file for tracking progress
-- [x] Global reply function already exists in index.js
-- [x] Update remaining command functions to accept message parameter and use global.reply
-- [x] Replace all sendMessage calls in main.js with global.reply(sock, message, content)
-- [x] Update lib files (antilink.js, welcome.js) to use reply instead of sendMessage
-- [x] Update commands with sendMessage calls (ai.js, antibadword.js) to use reply
-- [x] Remove sendMessage override in main.js since we'll use reply directly
-
-## Pending Tasks
-- [ ] Test bot responses to ensure messages are properly quoted
-- [ ] Verify all commands work correctly with quoted replies
+## Tasks
+- [ ] Update `lib/prefix.js` to include a list of valid command names
+- [ ] Modify `isCommand()` function to check first word against valid commands when prefix is "off"
+- [ ] Modify `getCommand()` function to return the first word when prefix is "off"
+- [ ] Test the changes to ensure commands work correctly in both prefixed and non-prefixed modes

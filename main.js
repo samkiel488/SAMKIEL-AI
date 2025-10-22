@@ -216,6 +216,10 @@ async function handleMessages(sock, messageUpdate, printLog) {
       console.log(
         `📝 Command used in ${isGroup ? "group" : "private"}: ${userMessage}`
       );
+      // Set recording state for commands
+      try {
+        await sock.sendPresenceUpdate("recording", chatId);
+      } catch (e) {}
     }
 
     // Check if user is banned (skip ban check for unban command)

@@ -178,6 +178,32 @@ async function handleMessages(sock, messageUpdate, printLog) {
     const message = messages[0];
     if (!message?.message) return;
 
+    // ===== BEGIN: Automatic reply wrapper =====
+    const incomingMessage = message; // keep local reference to quote
+
+    // Preserve original sendMessage for restoration later
+    const originalSendMessage = sock.sendMessage;
+
+    // Override sendMessage for this specific incoming message
+    sock.sendMessage = async function (jid, content, options) {
+      try {
+        // Ensure options exists
+        if (!options || typeof options !== "object") options = {};
+
+        // If no quoted message provided, attach the triggering one
+        if (!options.quoted) {
+          options.quoted = incomingMessage;
+        }
+
+        // Execute original sendMessage with proper binding
+        return await originalSendMessage.call(this, jid, content, options);
+      } catch (err) {
+        console.error("sendMessage wrapper error:", err);
+        return await originalSendMessage.call(this, jid, content, options);
+      }
+    };
+    // ===== END: Automatic reply wrapper =====
+
     // Store message for antidelete feature
     if (message.message) {
       storeMessage(message);
@@ -197,8 +223,12 @@ async function handleMessages(sock, messageUpdate, printLog) {
     let userMessage =
       message.message?.conversation?.trim().toLowerCase() ||
       message.message?.extendedTextMessage?.text?.trim().toLowerCase() ||
-      message.message?.listResponseMessage?.singleSelectReply?.selectedRowId?.trim().toLowerCase() ||
-      message.message?.buttonsResponseMessage?.selectedButtonId?.trim().toLowerCase() ||
+      message.message?.listResponseMessage?.singleSelectReply?.selectedRowId
+        ?.trim()
+        .toLowerCase() ||
+      message.message?.buttonsResponseMessage?.selectedButtonId
+        ?.trim()
+        .toLowerCase() ||
       "";
     userMessage = userMessage.replace(/\.\s+/g, ".").trim();
 
@@ -298,8 +328,11 @@ async function handleMessages(sock, messageUpdate, printLog) {
     }
 
     // Add delay for commands except specified ones
-    const noDelayCommands = ['ping', 'menu', 'help', 'bot', 'list', 'leap'];
-    if (isCommand(userMessage) && !noDelayCommands.some(c => command.startsWith(c))) {
+    const noDelayCommands = ["ping", "menu", "help", "bot", "list", "leap"];
+    if (
+      isCommand(userMessage) &&
+      !noDelayCommands.some((c) => command.startsWith(c))
+    ) {
       const delayMs = isGroup ? 2000 : 5000;
       try {
         await sock.sendPresenceUpdate("recording", chatId);
@@ -394,8 +427,6 @@ async function handleMessages(sock, messageUpdate, printLog) {
         return;
       }
     }
-
-
 
     // Command handlers
     switch (true) {
@@ -1180,6 +1211,14 @@ async function handleMessages(sock, messageUpdate, printLog) {
         console.error("❌ Error in global auto-reaction:", err);
       }
     }
+
+    // ===== Restore original sendMessage =====
+    try {
+      sock.sendMessage = originalSendMessage;
+    } catch (restoreError) {
+      console.error("Error restoring sendMessage:", restoreError);
+    }
+    // ===== END restore =====
   } catch (error) {
     console.error("❌ Error in message handler:", error.message);
     // Only try to send error message if we have a valid chatId

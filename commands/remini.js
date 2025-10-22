@@ -25,6 +25,8 @@ async function getQuotedOrOwnImageUrl(sock, message) {
     return null;
 }
 
+    
+
 async function reminiCommand(sock, chatId, message, args) {
     try {
         let imageUrl = null;
@@ -50,6 +52,16 @@ async function reminiCommand(sock, chatId, message, args) {
             }
         }
 
+
+        await sock.sendMessage(chatId, {
+          text: "🌞 Enhancing Image... please be patient 🤲🏾\n> 𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋",
+        });
+        {
+          quoted: message;
+        }
+
+
+
         // Call the Remini API
         const apiUrl = `https://api.princetechn.com/api/tools/remini?apikey=prince_tech_api_azfsbshfb&url=${encodeURIComponent(imageUrl)}`;
         
@@ -60,7 +72,8 @@ async function reminiCommand(sock, chatId, message, args) {
             }
         });
 
-
+        
+        
         if (response.data && response.data.success && response.data.result) {
             const result = response.data.result;
             

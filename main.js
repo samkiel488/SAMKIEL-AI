@@ -273,7 +273,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
       return;
     }
 
-    // Basic message response in private chat (modernized & interactive)
+    // Basic message response in private chat (confirmed compatible with nstar-y/bail)
     if (
       !isGroup &&
       ["hi", "hello", "ezekiel", "bot", "samkiel", "hey", "bro"].includes(
@@ -285,18 +285,39 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
 I'm your AI assistant — ready to help you with commands, tools, and automation.
 
-You can explore all available commands by tapping *Open Menu* below 👇`,
+You can explore all available commands below 👇`,
         footer: "Made with 🤍 by ѕαмкιєℓ.∂єν",
         templateButtons: [
           {
             index: 1,
             urlButton: {
-              displayText: "🔗 LinkedIn",
-              url: "https://www.linkedin.com/in/samkiel", // update if your LinkedIn handle differs
+              displayText: "🌐 Visit Website",
+              url: "https://samkiel.dev",
             },
           },
           {
             index: 2,
+            urlButton: {
+              displayText: "📣 WhatsApp Channel",
+              url: "https://whatsapp.com/channel/0029VbAhWo3C6Zvf2t4Rne0h",
+            },
+          },
+          {
+            index: 3,
+            urlButton: {
+              displayText: "💻 GitHub Profile",
+              url: "https://github.com/samkiel488",
+            },
+          },
+          {
+            index: 4,
+            urlButton: {
+              displayText: "🔗 LinkedIn",
+              url: "https://www.linkedin.com/in/samkiel",
+            },
+          },
+          {
+            index: 5,
             quickReplyButton: {
               displayText: "📜 Open Menu",
               id: ".menu",

@@ -1,14 +1,31 @@
 const settings = require("../settings");
+const os = require("os");
+
+// helper function to format uptime nicely
+function formatUptime(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  return `${h}h ${m}m ${s}s`;
+}
 
 async function helpCommand(sock, chatId, channelLink) {
   try {
+    // Calculate uptime
+    const uptime = formatUptime(process.uptime());
+
+    // Count total commands
+    const totalCommands = 96; // you can update this dynamically if you load from a folder
+
     await sock.sendMessage(chatId, {
-      text: `╭───〔 *🤖 SAMKIEL BOT* 〕───╮
-│ 🌟 *Version:* ${settings.version || "2.0"}
-│ 🛠️ *Developer:* ${settings.botOwner || "ѕαмкιєℓ.∂єν"}
-│ 🌐 *Website:* https://samkiel.dev
+      text: `╭───〔 🤖 ${settings.botName || "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋"} 〕───╮
+│ ⏱️ Uptime: ${uptime}
+│ ⚙️ Commands Loaded: ${totalCommands}
+│ 🌟 Version: ${settings.version || "3.2"}
+│ 🛠️ Developer: ${settings.botOwner || "ѕαмкιєℓ.∂єν"}
+│ 🌐 Website: https://samkiel.dev
 │ 
-│ 📣 *Follow Channel:*
+│ 📣 Follow Channel:
 │ https://whatsapp.com/channel/0029VbAhWo3C6Zvf2t4Rne0h
 ╰──────────────────╯`,
       footer: "Made with 🤍 by ѕαмкιєℓ.∂єν",

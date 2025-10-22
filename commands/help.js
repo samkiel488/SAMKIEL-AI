@@ -10,7 +10,7 @@ async function helpCommand(sock, chatId, channelLink) {
 │ 
 │ 📣 *Follow Channel:*
 │ https://whatsapp.com/channel/0029VbAhWo3C6Zvf2t4Rne0h
-╰─────────────────────────────╯`,
+╰──────────────────╯`,
       footer: "Made with 🤍 by ѕαмкιєℓ.∂єν",
       buttonText: "📜 Open Menu",
       sections: [

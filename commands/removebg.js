@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { downloadContentFromMessage } = require('baileys');
+const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
 const { uploadImage } = require('../lib/uploadImage');
 
 async function getQuotedOrOwnImageUrl(sock, message) {

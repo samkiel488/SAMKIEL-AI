@@ -163,7 +163,7 @@ const channelInfo = {
     },
   },
 };
-const { jidNormalizedUser } = require("baileys");
+const { jidNormalizedUser } = require("@whiskeysockets/baileys");
 const ownerList = JSON.parse(fs.readFileSync("./data/owner.json")).map((j) =>
   jidNormalizedUser(`${j}@s.whatsapp.net`)
 );

@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { jidNormalizedUser } = require("baileys");
+const { jidNormalizedUser } = require("@whiskeysockets/baileys");
 
 async function vcfCommand(sock, chatId) {
   try {
@@ -13,7 +13,9 @@ async function vcfCommand(sock, chatId) {
     const groupMetadata = await sock.groupMetadata(chatId);
     const participants = groupMetadata.participants;
 
-    console.log(`Total participants fetched: ${participants ? participants.length : 0}`);
+    console.log(
+      `Total participants fetched: ${participants ? participants.length : 0}`
+    );
 
     if (!participants || participants.length === 0) {
       await sock.sendMessage(chatId, {
@@ -78,7 +80,9 @@ async function vcfCommand(sock, chatId) {
       document: { url: filePath },
       mimetype: "text/vcard",
       fileName: "group_contacts.vcf",
-      caption: `📇 Group contacts exported successfully! ✅\nTotal: ${count - 1} contacts`,
+      caption: `📇 Group contacts exported successfully! ✅\nTotal: ${
+        count - 1
+      } contacts`,
     });
 
     // Delete the file
@@ -86,7 +90,6 @@ async function vcfCommand(sock, chatId) {
 
     // Console log total contacts
     console.log(`Total contacts exported: ${count - 1}`);
-
   } catch (err) {
     console.error("Error generating VCF:", err);
     await sock.sendMessage(chatId, { text: "❌ Failed to create VCF file." });

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { tmpdir } = require('os');
-const { downloadContentFromMessage } = require('baileys');
+const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
 const { writeFile } = require('fs/promises');
 
 const messageStore = new Map();

@@ -9,10 +9,8 @@ global.reply = async (sock, message, content) => {
 };
 
 require("./settings");
-const { Boom } = require("@hapi/boom");
 const fs = require("fs");
 const chalk = require("chalk");
-const path = require("path");
 const {
   handleMessages,
   handleGroupParticipantUpdate,
@@ -98,7 +96,7 @@ async function startXeonBotInc() {
   XeonBotInc = makeWASocket({
     version,
     logger: pino({ level: "silent" }),
-    printQRInTerminal: true, // Let Baileys handle QR display
+    printQRInTerminal: false, // Turn off QR; we will use pairing code
     browser: ["Ubuntu", "Chrome", "20.0.04"],
     auth: {
       creds: state.creds,
@@ -120,7 +118,41 @@ async function startXeonBotInc() {
 
   store.bind(XeonBotInc.ev);
 
-  // Message handler
+  // Pairing code workflow
+  if (!XeonBotInc.authState.creds.registered) {
+    let pn = phoneNumber;
+    if (!!global.phoneNumber) pn = global.phoneNumber;
+    else if (rl)
+      pn = await question(
+        "Enter your WhatsApp number in international format (e.g., 2348087357158): "
+      );
+
+    pn = pn.replace(/[^0-9]/g, "");
+    const validated = new PhoneNumber("+" + pn);
+    if (!validated.isValid()) {
+      console.log(
+        chalk.red("❌ Invalid phone number. Use full international number.")
+      );
+      process.exit(1);
+    }
+
+    try {
+      const code = await XeonBotInc.requestPairingCode(pn);
+      const formattedCode = code?.match(/.{1,4}/g)?.join("-") || code;
+      console.log(
+        chalk.green("✅ Pairing code generated:"),
+        chalk.yellow(formattedCode)
+      );
+      console.log(
+        "Open WhatsApp > Settings > Linked Devices > Link a Device, and enter the code above."
+      );
+    } catch (err) {
+      console.error("Failed to request pairing code:", err);
+      process.exit(1);
+    }
+  }
+
+  // Message handling
   XeonBotInc.ev.on("messages.upsert", async (chatUpdate) => {
     try {
       const mek = chatUpdate.messages[0];
@@ -129,12 +161,10 @@ async function startXeonBotInc() {
         Object.keys(mek.message)[0] === "ephemeralMessage"
           ? mek.message.ephemeralMessage.message
           : mek.message;
-
       if (mek.key.remoteJid === "status@broadcast") {
         await handleStatus(XeonBotInc, chatUpdate);
         return;
       }
-
       try {
         await handleMessages(XeonBotInc, chatUpdate, true);
       } catch (err) {
@@ -151,6 +181,17 @@ async function startXeonBotInc() {
     async ({ connection, lastDisconnect }) => {
       if (connection === "open") {
         console.log(chalk.green("✅ Bot Connected Successfully!"));
+
+        // Send connected message to bot's own number
+        try {
+          const botNumber =
+            XeonBotInc.user.id.split(":")[0] + "@s.whatsapp.net";
+          await XeonBotInc.sendMessage(botNumber, {
+            text: `🤖 Bot Connected Successfully!\n⏰ Time: ${new Date().toLocaleString()}\n✅ Status: Online and Ready!\n\n📺 Make sure to join our channel for updates!`,
+          });
+        } catch (err) {
+          console.error("Failed to send self-message:", err);
+        }
       }
 
       if (connection === "close") {
@@ -166,14 +207,8 @@ async function startXeonBotInc() {
   );
 
   XeonBotInc.ev.on("creds.update", saveCreds);
-
-  // Optional: handle group participants & status
   XeonBotInc.ev.on("group-participants.update", async (update) => {
     await handleGroupParticipantUpdate(XeonBotInc, update);
-  });
-  XeonBotInc.ev.on("messages.upsert", async (m) => {
-    if (m.messages[0].key.remoteJid === "status@broadcast")
-      await handleStatus(XeonBotInc, m);
   });
 }
 
@@ -182,6 +217,7 @@ startXeonBotInc().catch((err) => {
   process.exit(1);
 });
 
+// Auto-reload
 fs.watchFile(require.resolve(__filename), () => {
   fs.unwatchFile(require.resolve(__filename));
   console.log(chalk.redBright(`Update ${__filename}`));

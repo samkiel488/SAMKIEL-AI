@@ -17,7 +17,7 @@ const {
   handleGroupParticipantUpdate,
   handleStatus,
 } = require("./main");
-const PhoneNumber = require("awesome-phonenumber");
+const qrcode = require("qrcode-terminal");
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -90,15 +90,10 @@ async function startXeonBotInc() {
   XeonBotInc = makeWASocket({
     version,
     logger: pino({ level: "silent" }),
-    printQRInTerminal: false, // pairing code will be used
+    printQRInTerminal: false,
     browser: ["Ubuntu", "Chrome", "20.0.04"],
-    auth: {
-      creds: state.creds,
-      keys: makeCacheableSignalKeyStore(
-        state.keys,
-        pino({ level: "fatal" }).child({ level: "fatal" })
-      ),
-    },
+    // use the multi-file auth state directly — this is the recommended pattern
+    auth: state,
     markOnlineOnConnect: true,
     generateHighQualityLinkPreview: true,
     getMessage: async (key) => {
@@ -113,48 +108,53 @@ async function startXeonBotInc() {
   store.bind(XeonBotInc.ev);
 
   // Handle pairing code
-  if (!XeonBotInc.authState.creds.registered) {
-    let botNumber = settings.botNumber || "";
-    botNumber = botNumber.replace(/[^0-9]/g, "");
-
-    if (!new PhoneNumber("+" + botNumber).isValid()) {
-      console.error(
-        chalk.red("❌ Invalid botNumber in settings. Check the format.")
-      );
-      process.exit(1);
-    }
-
-    try {
-      const code = await XeonBotInc.requestPairingCode(botNumber);
-      const formattedCode = code?.match(/.{1,4}/g)?.join("-") || code;
-      console.log(
-        chalk.green("✅ Pairing code generated:"),
-        chalk.yellow(formattedCode)
-      );
-      console.log(
-        "Open WhatsApp > Settings > Linked Devices > Link a Device, and enter the code above."
-      );
-    } catch (err) {
-      console.error("Failed to request pairing code:", err);
-      process.exit(1);
-    }
-  }
+  // QR/pairing will be handled on connection.update below. Do not request
+  // pairing codes manually here. We display the QR when Baileys emits it.
 
   // Connection handling
-  XeonBotInc.ev.on("connection.update", async (s) => {
-    const { connection, lastDisconnect } = s;
+  XeonBotInc.ev.on("connection.update", async (update) => {
+    const { connection, lastDisconnect, qr } = update;
+
+    // When QR is available, print it in the terminal for scanning
+    if (qr) {
+      console.log(chalk.green("⚡ Scan this QR to link the bot:"));
+      try {
+        qrcode.generate(qr, { small: true });
+      } catch (e) {
+        // fallback: print raw QR string
+        console.log(qr);
+      }
+      console.log(
+        "Open WhatsApp > Settings > Linked Devices > Link a Device, then scan the QR above."
+      );
+    }
+
     if (connection === "open") {
-      console.log(chalk.yellow(`🌿 Connected as ${XeonBotInc.user.id}`));
+      console.log(
+        chalk.yellow(`🌿 Connected as ${XeonBotInc.user?.id || "unknown"}`)
+      );
     } else if (connection === "close") {
       const statusCode = lastDisconnect?.error?.output?.statusCode;
       if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
-        rmSync("./session", { recursive: true, force: true });
+        // remove session and request fresh auth
+        try {
+          rmSync("./session", { recursive: true, force: true });
+        } catch {}
         console.log(
-          chalk.red("Session logged out. Re-authentication required.")
+          chalk.red(
+            "Session logged out. Cleared session, re-authentication required."
+          )
         );
       }
-      console.log(chalk.yellow("Attempting to reconnect..."));
-      startXeonBotInc();
+      console.log(
+        chalk.yellow("Connection closed — attempting to reconnect in 3s...")
+      );
+      await delay(3000);
+      try {
+        await startXeonBotInc();
+      } catch (e) {
+        console.error("Reconnection failed:", e);
+      }
     }
   });
 

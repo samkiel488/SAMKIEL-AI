@@ -9,6 +9,7 @@ global.reply = async (sock, message, content) => {
 };
 
 require("./settings");
+const { Boom } = require("@hapi/boom");
 const fs = require("fs");
 const chalk = require("chalk");
 const {
@@ -29,28 +30,11 @@ const {
 } = require("@whiskeysockets/baileys");
 const NodeCache = require("node-cache");
 const pino = require("pino");
-const readline = require("readline");
 const { rmSync } = require("fs");
 
-// Handle unhandled errors
-process.on("unhandledRejection", console.error);
-process.on("uncaughtException", console.error);
+const settings = require("./settings");
 
-// Bot globals
 let XeonBotInc;
-global.botname = "𝕊𝔸𝕄𝕂𝕀𝔼𝕃 𝔹𝕆𝕋";
-global.themeemoji = "•";
-let phoneNumber = "2348087357158";
-let owner = JSON.parse(fs.readFileSync("./data/owner.json"));
-
-// Readline interface for interactive prompt
-const rl = process.stdin.isTTY
-  ? readline.createInterface({ input: process.stdin, output: process.stdout })
-  : null;
-const question = (text) =>
-  rl
-    ? new Promise((resolve) => rl.question(text, resolve))
-    : Promise.resolve(phoneNumber);
 
 // Lightweight in-memory store
 const store = {
@@ -75,28 +59,38 @@ const store = {
         }
       });
     });
+
     ev.on("contacts.update", (contacts) => {
-      contacts.forEach((c) => {
-        if (c.id) this.contacts[c.id] = c;
+      contacts.forEach((contact) => {
+        if (contact.id) this.contacts[contact.id] = contact;
       });
     });
-    ev.on("chats.set", (chats) => (this.chats = chats));
+
+    ev.on("chats.set", (chats) => {
+      this.chats = chats;
+    });
   },
   loadMessage: async (jid, id) => this.messages[jid]?.[id] || null,
 };
 
-// Start bot
-async function startXeonBotInc() {
-  const { version, isLatest } = await fetchLatestBaileysVersion();
-  console.log(`Baileys version: ${version}, isLatest: ${isLatest}`);
+process.on("unhandledRejection", (err) => {
+  const message = String(err);
+  if (message.includes("conflict") || message.includes("Connection Closed")) {
+    console.log("⚠️ Connection conflict detected — restarting session...");
+  } else {
+    console.error("Unhandled Rejection:", err);
+  }
+});
 
-  const { state, saveCreds } = await useMultiFileAuthState("./session");
+async function startXeonBotInc() {
+  let { version } = await fetchLatestBaileysVersion();
+  const { state, saveCreds } = await useMultiFileAuthState(`./session`);
   const msgRetryCounterCache = new NodeCache();
 
   XeonBotInc = makeWASocket({
     version,
     logger: pino({ level: "silent" }),
-    printQRInTerminal: false, // Turn off QR; we will use pairing code
+    printQRInTerminal: false, // pairing code will be used
     browser: ["Ubuntu", "Chrome", "20.0.04"],
     auth: {
       creds: state.creds,
@@ -107,37 +101,31 @@ async function startXeonBotInc() {
     },
     markOnlineOnConnect: true,
     generateHighQualityLinkPreview: true,
-    syncFullHistory: true,
     getMessage: async (key) => {
       let jid = jidNormalizedUser(key.remoteJid);
       let msg = await store.loadMessage(jid, key.id);
       return msg?.message || "";
     },
     msgRetryCounterCache,
+    defaultQueryTimeoutMs: undefined,
   });
 
   store.bind(XeonBotInc.ev);
 
-  // Pairing code workflow
+  // Handle pairing code
   if (!XeonBotInc.authState.creds.registered) {
-    let pn = phoneNumber;
-    if (!!global.phoneNumber) pn = global.phoneNumber;
-    else if (rl)
-      pn = await question(
-        "Enter your WhatsApp number in international format (e.g., 2348087357158): "
-      );
+    let botNumber = settings.botNumber || "";
+    botNumber = botNumber.replace(/[^0-9]/g, "");
 
-    pn = pn.replace(/[^0-9]/g, "");
-    const validated = new PhoneNumber("+" + pn);
-    if (!validated.isValid()) {
-      console.log(
-        chalk.red("❌ Invalid phone number. Use full international number.")
+    if (!new PhoneNumber("+" + botNumber).isValid()) {
+      console.error(
+        chalk.red("❌ Invalid botNumber in settings. Check the format.")
       );
       process.exit(1);
     }
 
     try {
-      const code = await XeonBotInc.requestPairingCode(pn);
+      const code = await XeonBotInc.requestPairingCode(botNumber);
       const formattedCode = code?.match(/.{1,4}/g)?.join("-") || code;
       console.log(
         chalk.green("✅ Pairing code generated:"),
@@ -152,75 +140,64 @@ async function startXeonBotInc() {
     }
   }
 
-  // Message handling
-  XeonBotInc.ev.on("messages.upsert", async (chatUpdate) => {
-    try {
-      const mek = chatUpdate.messages[0];
-      if (!mek.message) return;
-      mek.message =
-        Object.keys(mek.message)[0] === "ephemeralMessage"
-          ? mek.message.ephemeralMessage.message
-          : mek.message;
-      if (mek.key.remoteJid === "status@broadcast") {
-        await handleStatus(XeonBotInc, chatUpdate);
-        return;
+  // Connection handling
+  XeonBotInc.ev.on("connection.update", async (s) => {
+    const { connection, lastDisconnect } = s;
+    if (connection === "open") {
+      console.log(chalk.yellow(`🌿 Connected as ${XeonBotInc.user.id}`));
+    } else if (connection === "close") {
+      const statusCode = lastDisconnect?.error?.output?.statusCode;
+      if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
+        rmSync("./session", { recursive: true, force: true });
+        console.log(
+          chalk.red("Session logged out. Re-authentication required.")
+        );
       }
-      try {
-        await handleMessages(XeonBotInc, chatUpdate, true);
-      } catch (err) {
-        console.error("Error in handleMessages:", err);
-      }
-    } catch (err) {
-      console.error("Error in messages.upsert:", err);
+      console.log(chalk.yellow("Attempting to reconnect..."));
+      startXeonBotInc();
     }
   });
 
-  // Connection handling
-  XeonBotInc.ev.on(
-    "connection.update",
-    async ({ connection, lastDisconnect }) => {
-      if (connection === "open") {
-        console.log(chalk.green("✅ Bot Connected Successfully!"));
-
-        // Send connected message to bot's own number
-        try {
-          const botNumber =
-            XeonBotInc.user.id.split(":")[0] + "@s.whatsapp.net";
-          await XeonBotInc.sendMessage(botNumber, {
-            text: `🤖 Bot Connected Successfully!\n⏰ Time: ${new Date().toLocaleString()}\n✅ Status: Online and Ready!\n\n📺 Make sure to join our channel for updates!`,
-          });
-        } catch (err) {
-          console.error("Failed to send self-message:", err);
-        }
-      }
-
-      if (connection === "close") {
-        const statusCode = lastDisconnect?.error?.output?.statusCode;
-        if ([DisconnectReason.loggedOut, 401].includes(statusCode)) {
-          console.log(chalk.red("⚠️ Session invalid. Clearing session..."));
-          rmSync("./session", { recursive: true, force: true });
-        }
-        console.log(chalk.yellow("🔄 Reconnecting..."));
-        startXeonBotInc();
-      }
-    }
-  );
-
   XeonBotInc.ev.on("creds.update", saveCreds);
+
+  // Message handler
+  XeonBotInc.ev.on("messages.upsert", async (m) => {
+    const mek = m.messages[0];
+    if (!mek.message) return;
+    mek.message =
+      Object.keys(mek.message)[0] === "ephemeralMessage"
+        ? mek.message.ephemeralMessage.message
+        : mek.message;
+
+    if (mek.key && mek.key.remoteJid === "status@broadcast") {
+      await handleStatus(XeonBotInc, m);
+      return;
+    }
+
+    try {
+      await handleMessages(XeonBotInc, m, true);
+    } catch (err) {
+      console.error("Error in handleMessages:", err);
+    }
+  });
+
+  // Group participants
   XeonBotInc.ev.on("group-participants.update", async (update) => {
     await handleGroupParticipantUpdate(XeonBotInc, update);
   });
+
+  return XeonBotInc;
 }
 
+// Start bot
 startXeonBotInc().catch((err) => {
   console.error("Fatal error:", err);
   process.exit(1);
 });
 
-// Auto-reload
-fs.watchFile(require.resolve(__filename), () => {
-  fs.unwatchFile(require.resolve(__filename));
-  console.log(chalk.redBright(`Update ${__filename}`));
-  delete require.cache[require.resolve(__filename)];
-  require(__filename);
-});
+process.on("uncaughtException", (err) =>
+  console.error("Uncaught Exception:", err)
+);
+process.on("unhandledRejection", (err) =>
+  console.error("Unhandled Rejection:", err)
+);

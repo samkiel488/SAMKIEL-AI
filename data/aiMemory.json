@@ -6,14 +6,6 @@
     },
     {
       "role": "user",
-      "content": "whats my name"
-    },
-    {
-      "role": "user",
-      "content": "whats my name"
-    },
-    {
-      "role": "user",
       "content": "my name is samkiel~"
     },
     {
@@ -39,6 +31,14 @@
     {
       "role": "user",
       "content": "how are you"
+    },
+    {
+      "role": "user",
+      "content": "generate code for a simple html boiler plate"
+    },
+    {
+      "role": "user",
+      "content": "who are you"
     }
   ],
   "240655909519537@lid": [

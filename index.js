@@ -140,7 +140,6 @@ const question = (text) => {
 
 async function startXeonBotInc() {
   let { version, isLatest } = await fetchLatestBaileysVersion();
-  console.log(`Baileys version: ${version}, isLatest: ${isLatest}`);
   const { state, saveCreds } = await useMultiFileAuthState(`./session`);
   const msgRetryCounterCache = new NodeCache();
 

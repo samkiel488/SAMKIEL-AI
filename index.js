@@ -9,6 +9,11 @@ const { handleMessages, handleGroupParticipantUpdate, handleStatus } = require('
 const PhoneNumber = require('awesome-phonenumber')
 const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/exif')
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetch, await, sleep, reSize } = require('./lib/myfunc')
+
+// Define global reply function
+global.reply = async (sock, message, content) => {
+  return await sock.sendMessage(message.chat || message.key.remoteJid, content, { quoted: message });
+};
 const { 
     default: makeWASocket,
     useMultiFileAuthState, 
@@ -344,4 +349,4 @@ fs.watchFile(file, () => {
     console.log(chalk.redBright(`Update ${__filename}`))
     delete require.cache[file]
     require(file)
-}) 
+})

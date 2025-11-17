@@ -227,6 +227,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
       const adminStatus = await isAdmin(sock, chatId, senderId);
       isSenderAdmin = adminStatus.isSenderAdmin;
       isBotAdmin = adminStatus.isBotAdmin;
+    }
 
     let userMessage =
       message.message?.conversation?.trim().toLowerCase() ||

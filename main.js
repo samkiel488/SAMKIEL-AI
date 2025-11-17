@@ -220,6 +220,14 @@ async function handleMessages(sock, messageUpdate, printLog) {
     const isGroup = chatId.endsWith("@g.us");
     const isSudoUser = await isSudo(senderId);
 
+    // Initialize admin status variables
+    let isSenderAdmin = false;
+    let isBotAdmin = false;
+    if (isGroup) {
+      const adminStatus = await isAdmin(sock, chatId, senderId);
+      isSenderAdmin = adminStatus.isSenderAdmin;
+      isBotAdmin = adminStatus.isBotAdmin;
+
     let userMessage =
       message.message?.conversation?.trim().toLowerCase() ||
       message.message?.extendedTextMessage?.text?.trim().toLowerCase() ||
@@ -456,7 +464,8 @@ You can explore all available commands below 👇`,
     // Hybrid commands: Allow both admins and owner
     if (isGroup && isHybridCommand) {
       const { isSenderAdmin } = await isAdmin(sock, chatId, senderId);
-      if (!isSenderAdmin && !message.key.fromMe) {
+      const isOwnerCheck = await isOwner(senderId);
+      if (!isSenderAdmin && !isOwnerCheck && !message.key.fromMe) {
         await sock.sendMessage(chatId, {
           text: "Buddy only group admins or bot owner can use this command.",
           ...channelInfo,
